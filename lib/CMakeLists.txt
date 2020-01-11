@@ -618,24 +618,27 @@ install(CODE
 )
 
 if(UFE_FOUND)
+    set(UFE_LIBRARY_NAME ufe)
+
     # UFE Python Bindings
     if(IS_WINDOWS AND MAYAUSD_DEFINE_BOOST_DEBUG_PYTHON_FLAG)
         # On Windows when compiling with debug python the library must be named with _d.
-        set(UFE_PYTHON_LIBRARY_NAME ufe_d)
+        set(UFE_PYTHON_LIBRARY_NAME "_${UFE_LIBRARY_NAME}_d")
     else()
-        set(UFE_PYTHON_LIBRARY_NAME ufe)
+        set(UFE_PYTHON_LIBRARY_NAME "_${UFE_LIBRARY_NAME}")
     endif()
 
     add_library(${UFE_PYTHON_LIBRARY_NAME}
         SHARED
+        ufe/module.cpp
         ufe/wrapUtils.cpp
     )
 
     target_compile_definitions(${UFE_PYTHON_LIBRARY_NAME}
         PRIVATE
-            MFB_PACKAGE_NAME=${LIBRARY_NAME}
-            MFB_ALT_PACKAGE_NAME=${LIBRARY_NAME}
-            MFB_PACKAGE_MODULE=ufe
+            MFB_PACKAGE_NAME=${UFE_LIBRARY_NAME}
+            MFB_ALT_PACKAGE_NAME=${UFE_LIBRARY_NAME}
+            MFB_PACKAGE_MODULE=${UFE_LIBRARY_NAME}
     )
     set_target_properties(${UFE_PYTHON_LIBRARY_NAME} 
         PROPERTIES 
@@ -650,20 +653,24 @@ if(UFE_FOUND)
 
     if(IS_MACOSX OR IS_LINUX)
         mayaUsd_init_rpath(rpath "${PROJECT_NAME}")
-        mayaUsd_add_rpath(rpath "../..")
+        mayaUsd_add_rpath(rpath "../../..")
         mayaUsd_install_rpath(rpath ${UFE_PYTHON_LIBRARY_NAME})
     endif()
 
     install(TARGETS ${UFE_PYTHON_LIBRARY_NAME}
         LIBRARY
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/${PROJECT_NAME}/${UFE_LIBRARY_NAME}
         RUNTIME
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/${PROJECT_NAME}/${UFE_LIBRARY_NAME}
     )
 
     if(IS_WINDOWS)
-        install(FILES $<TARGET_PDB_FILE:${UFE_PYTHON_LIBRARY_NAME}> DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/${PROJECT_NAME} OPTIONAL)
+        install(FILES $<TARGET_PDB_FILE:${UFE_PYTHON_LIBRARY_NAME}> DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/${PROJECT_NAME}/${UFE_LIBRARY_NAME} OPTIONAL)
     endif()
+
+    install(FILES ufe/__init__.py
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python/${PROJECT_NAME}/${UFE_LIBRARY_NAME}
+    )
 
     if (CMAKE_UFE_V2_FEATURES_AVAILABLE)
         # We need an empty __init__.py file in each subfolder so it is considered a python module.
