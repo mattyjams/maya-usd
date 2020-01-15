@@ -234,6 +234,7 @@ if(UFE_FOUND)
         ufe/UsdUndoDuplicateCommand.cpp
         ufe/UsdUndoRenameCommand.cpp
         ufe/Utils.cpp
+        ufe/moduleDeps.cpp
         #
         ufe/private/Utils.cpp
     )
