@@ -1,10 +1,11 @@
 # -----------------------------------------------------------------------------
 # sources
 # -----------------------------------------------------------------------------
-target_sources(${PROJECT_NAME} 
+target_sources(${PROJECT_NAME}
     PRIVATE
         buildInfo.cpp
         debugCodes.cpp
+        MayaUsdEditForwardHost.cpp
         tokens.cpp
 )
 
@@ -12,6 +13,7 @@ set(HEADERS
     api.h
     debugCodes.h
     id.h
+    MayaUsdEditForwardHost.h
     syncId.h
     tokens.h
 )
