@@ -19,6 +19,10 @@
 
 #ifdef WANT_ADSKUSDEDITFORWARD_BUILD
 
+namespace {
+bool idleTaskQueued = false;
+}
+
 void MayaUsdEditForwardHost::ExecuteInCmd(std::function<void()> callback, bool immediate)
 {
     if (immediate) {
@@ -30,14 +34,27 @@ void MayaUsdEditForwardHost::ExecuteInCmd(std::function<void()> callback, bool i
 
     static std::vector<std::function<void()>> callbacks;
     callbacks.push_back(callback);
+
+    if (idleTaskQueued) {
+        // If we already have a task queue, it will run all callbacks.
+        return;
+    }
+
     MGlobal::executeTaskOnIdle([](void* data) {
-        for (auto cb : callbacks) {
+        // Get a local copy before we iterate, in case callbacks themselves
+        // append new callbacks.
+        auto callbacksCopy = callbacks;
+        callbacks.clear();
+
+        for (auto cb : callbacksCopy) {
             if (cb) {
                 cb();
             }
         }
-        callbacks.clear();
+
+        idleTaskQueued = false;
     });
+    idleTaskQueued = true;
 }
 
 bool MayaUsdEditForwardHost::IsEditForwardingPaused() const { return _paused; }
