@@ -45,14 +45,13 @@ void MayaUsdEditForwardHost::ExecuteInCmd(std::function<void()> callback, bool i
         // append new callbacks.
         auto callbacksCopy = callbacks;
         callbacks.clear();
+        idleTaskQueued = false;
 
         for (auto cb : callbacksCopy) {
             if (cb) {
                 cb();
             }
-        }
-
-        idleTaskQueued = false;
+        }        
     });
     idleTaskQueued = true;
 }
