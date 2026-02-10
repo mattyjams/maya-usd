@@ -1394,7 +1394,7 @@ MStatus MayaUsdProxyShapeBase::computeOutStageData(MDataBlock& dataBlock)
     // layers, based on configurable rules authored on the stage's root layer.
     static std::once_flag initHostOnce;
     std::call_once(initHostOnce, []() {
-        // The host implements some DCC specific fonctionality for edit forwarding.
+        // The host implements some DCC specific functionality for edit forwarding.
         auto mayaHost = std::make_shared<MayaUsdEditForwardHost>();
         AdskUsdEditForward::Host::SetInstance(mayaHost);
     });

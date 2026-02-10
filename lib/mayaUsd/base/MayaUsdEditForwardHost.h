@@ -18,7 +18,6 @@
 
 #include <mayaUsd/base/api.h>
 
-#ifdef WANT_ADSKUSDEDITFORWARD_BUILD
 #include <pxr/pxr.h>
 
 #include <AdskUsdEditForward/Host.h>
@@ -40,7 +39,5 @@ public:
 private:
     bool _paused = false;
 };
-
-#endif // WANT_ADSKUSDEDITFORWARD_BUILD
 
 #endif // MAYAUSD_EDITFORWARDHOST_H

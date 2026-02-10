@@ -17,8 +17,6 @@
 
 #include <maya/MGlobal.h>
 
-#ifdef WANT_ADSKUSDEDITFORWARD_BUILD
-
 namespace {
 bool idleTaskQueued = false;
 }
@@ -51,7 +49,7 @@ void MayaUsdEditForwardHost::ExecuteInCmd(std::function<void()> callback, bool i
             if (cb) {
                 cb();
             }
-        }        
+        }
     });
     idleTaskQueued = true;
 }
@@ -64,5 +62,3 @@ void MayaUsdEditForwardHost::TrackLayerStates(const pxr::SdfLayerHandle& layer)
 {
     // TODO : need to hook up maya-usd layer tracking for undo.
 }
-
-#endif // WANT_ADSKUSDEDITFORWARD_BUILD
