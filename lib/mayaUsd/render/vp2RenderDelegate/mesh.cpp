@@ -1877,9 +1877,8 @@ void HdVP2Mesh::_UpdateDrawItem(
     bool instancerWithNoInstances = false;
     if (!GetInstancerId().IsEmpty()) {
         // Retrieve instance transforms from the instancer.
-        HdInstancer*    instancer = renderIndex.GetInstancer(GetInstancerId());
-        VtMatrix4dArray transforms
-            = static_cast<HdVP2Instancer*>(instancer)->GetInstanceTransforms(id);
+        HdVP2Instancer* instancer = static_cast<HdVP2Instancer*>(renderIndex.GetInstancer(GetInstancerId()));
+        VtMatrix4dArray transforms = instancer ? instancer->GetInstanceTransforms(id) : VtMatrix4dArray();
 
         MMatrix            instanceMatrix;
         const unsigned int instanceCount = transforms.size();

@@ -55,7 +55,6 @@ HdVP2Instancer::HdVP2Instancer(
  */
 HdVP2Instancer::~HdVP2Instancer()
 {
-    TF_FOR_ALL(it, _primvarMap) { delete it->second; }
     _primvarMap.clear();
 }
 
@@ -89,10 +88,7 @@ void HdVP2Instancer::Sync(
             if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, pv.name)) {
                 VtValue value = GetDelegate()->Get(id, pv.name);
                 if (!value.IsEmpty()) {
-                    if (_primvarMap.count(pv.name) > 0) {
-                        delete _primvarMap[pv.name];
-                    }
-                    _primvarMap[pv.name] = new HdVtBufferSource(pv.name, value);
+                    _primvarMap[pv.name] = std::make_unique<HdVtBufferSource>(pv.name, value);
                 }
             }
         }
@@ -109,7 +105,7 @@ void HdVP2Instancer::Sync(
                 _maxInstanceIndex = std::max(
                     _maxInstanceIndex,
                     *std::max_element(instanceIndices.begin(), instanceIndices.end()));
-                _instanceIndicesByPrototype[prototypeId] = instanceIndices;
+                _instanceIndicesByPrototype[prototypeId] = std::move(instanceIndices);
             }
         }
     }
@@ -120,6 +116,15 @@ void HdVP2Instancer::Sync(
     if (updateInstanceTransforms) {
         // Initialize all transforms to the instancer's transform, on which we later
         // apply the individual instances' transformations.
+        // The transforms are computed by:
+        // foreach(index : indices) {
+        //     instancerTransform
+        //     * hydra:translate(index)
+        //     * hydra:rotate(index)
+        //     * hydra:scale(index)
+        //     * hydra:instanceTransform(index)
+        // }
+        // If any transform isn't provided, it's assumed to be the identity.
         GfMatrix4d instancerTransform = GetDelegate()->GetInstancerTransform(id);
         _instanceTransforms = VtMatrix4dArray(_maxInstanceIndex + 1, instancerTransform);
 
