@@ -53,10 +53,7 @@ HdVP2Instancer::HdVP2Instancer(
 
 /*! \brief  Destructor.
  */
-HdVP2Instancer::~HdVP2Instancer()
-{
-    _primvarMap.clear();
-}
+HdVP2Instancer::~HdVP2Instancer() { _primvarMap.clear(); }
 
 /*! \brief  Sync the instancer and update the cached transforms, if need be.
 
