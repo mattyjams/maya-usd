@@ -597,9 +597,9 @@ void HdVP2Points::_UpdateDrawItem(
     if (!GetInstancerId().IsEmpty()) {
 
         // Retrieve instance transforms from the instancer.
-        HdVP2Instancer* instancer 
+        HdVP2Instancer* instancer
             = static_cast<HdVP2Instancer*>(renderIndex.GetInstancer(GetInstancerId()));
-        VtMatrix4dArray transforms 
+        VtMatrix4dArray transforms
             = instancer ? instancer->GetInstanceTransforms(id) : VtMatrix4dArray();
 
         MMatrix            instanceMatrix;
