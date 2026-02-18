@@ -60,7 +60,8 @@ private:
         primvar name. Primvar values are VtValue, an any-type; they are
         interpreted at consumption time (here, in ComputeInstanceTransforms).
     */
-    std::unordered_map<TfToken, std::unique_ptr<HdVtBufferSource>, TfToken::HashFunctor> _primvarMap;
+    std::unordered_map<TfToken, std::unique_ptr<HdVtBufferSource>, TfToken::HashFunctor>
+        _primvarMap;
 
     // Cache the instance indices to avoid having the scene delegate recompute
     // them every time
