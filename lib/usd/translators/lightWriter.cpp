@@ -66,10 +66,13 @@ void PxrUsdTranslators_DirectionalLightWriter::Write(const UsdTimeCode& usdTime)
         UsdMayaTranslatorLight::WriteLightSplinesAttrs(primSchema.LightAPI(), lightFn);
         UsdMayaTranslatorLight::WriteDirectionalLightSplineAttrs(primSchema.LightAPI(), lightFn);
     }
+
+    const bool exportTimeSamples = animType != UsdMayaJobExportArgsTokens->curves;
+    // First write the base light attributes
+    UsdMayaTranslatorLight::WriteLightAttrs(
+        usdTime, primSchema.LightAPI(), lightFn, exportTimeSamples, _GetSparseValueWriter());
+
     if (animType != UsdMayaJobExportArgsTokens->curves) {
-        // First write the base light attributes
-        UsdMayaTranslatorLight::WriteLightAttrs(
-            usdTime, primSchema.LightAPI(), lightFn, _GetSparseValueWriter());
         // Then write the specialized attributes for Directional lights
         UsdMayaTranslatorLight::WriteDirectionalLightAttrs(
             usdTime, primSchema, lightFn, _GetSparseValueWriter());
@@ -113,15 +116,19 @@ void PxrUsdTranslators_PointLightWriter::Write(const UsdTimeCode& usdTime)
     auto animType = _writeJobCtx.GetArgs().animationType;
     if (usdTime.IsDefault() && animType != UsdMayaJobExportArgsTokens->timesamples) {
         UsdMayaTranslatorLight::WriteLightSplinesAttrs(primSchema.LightAPI(), lightFn);
-        UsdMayaTranslatorLight::WritePointLightSplineAttrs(primSchema.LightAPI(), lightFn);
+        UsdMayaTranslatorLight::WritePointLightSplineAttrs(
+            primSchema.LightAPI(), lightFn, _metersPerUnitScalingFactor);
     }
-    if (animType != UsdMayaJobExportArgsTokens->curves) {
-        // First write the base light attributes
-        UsdMayaTranslatorLight::WriteLightAttrs(
-            usdTime, primSchema.LightAPI(), lightFn, _GetSparseValueWriter());
+
+    const bool exportTimeSamples = animType != UsdMayaJobExportArgsTokens->curves;
+    // First write the base light attributes
+    UsdMayaTranslatorLight::WriteLightAttrs(
+        usdTime, primSchema.LightAPI(), lightFn, exportTimeSamples, _GetSparseValueWriter());
+
+    if (exportTimeSamples) {
         // Then write the specialized attributes for Point lights
         UsdMayaTranslatorLight::WritePointLightAttrs(
-            usdTime, primSchema, lightFn, _GetSparseValueWriter());
+            usdTime, primSchema, lightFn, _metersPerUnitScalingFactor, _GetSparseValueWriter());
     }
 }
 
@@ -162,15 +169,19 @@ void PxrUsdTranslators_SpotLightWriter::Write(const UsdTimeCode& usdTime)
     auto animType = _writeJobCtx.GetArgs().animationType;
     if (usdTime.IsDefault() && animType != UsdMayaJobExportArgsTokens->timesamples) {
         UsdMayaTranslatorLight::WriteLightSplinesAttrs(primSchema.LightAPI(), lightFn);
-        UsdMayaTranslatorLight::WriteSpotLightSplineAttrs(primSchema.LightAPI(), lightFn);
+        UsdMayaTranslatorLight::WriteSpotLightSplineAttrs(
+            primSchema.LightAPI(), lightFn, _metersPerUnitScalingFactor);
     }
-    if (animType != UsdMayaJobExportArgsTokens->curves) {
-        // First write the base light attributes
-        UsdMayaTranslatorLight::WriteLightAttrs(
-            usdTime, primSchema.LightAPI(), lightFn, _GetSparseValueWriter());
+
+    const bool exportTimeSamples = animType != UsdMayaJobExportArgsTokens->curves;
+    // First write the base light attributes
+    UsdMayaTranslatorLight::WriteLightAttrs(
+        usdTime, primSchema.LightAPI(), lightFn, exportTimeSamples, _GetSparseValueWriter());
+
+    if (exportTimeSamples) {
         // Then write the specialized attributes for spot lights
         UsdMayaTranslatorLight::WriteSpotLightAttrs(
-            usdTime, primSchema, lightFn, _GetSparseValueWriter());
+            usdTime, primSchema, lightFn, _metersPerUnitScalingFactor, _GetSparseValueWriter());
     }
 }
 
@@ -211,19 +222,18 @@ void PxrUsdTranslators_AreaLightWriter::Write(const UsdTimeCode& usdTime)
     auto animType = _writeJobCtx.GetArgs().animationType;
     if (usdTime.IsDefault() && animType != UsdMayaJobExportArgsTokens->timesamples) {
         UsdMayaTranslatorLight::WriteLightSplinesAttrs(primSchema.LightAPI(), lightFn);
-        // No splines for area lights, but we call the function to ensure that all attribute are
-        // written
-        UsdMayaTranslatorLight::WriteAreaLightAttrs(
-            usdTime, primSchema, lightFn, _GetSparseValueWriter());
     }
-    if (animType != UsdMayaJobExportArgsTokens->curves) {
-        // First write the base light attributes
-        UsdMayaTranslatorLight::WriteLightAttrs(
-            usdTime, primSchema.LightAPI(), lightFn, _GetSparseValueWriter());
-        // Then write the specialized attributes for area lights
-        UsdMayaTranslatorLight::WriteAreaLightAttrs(
-            usdTime, primSchema, lightFn, _GetSparseValueWriter());
-    }
+
+    UsdMayaTranslatorLight::WriteLightAttrs(
+        usdTime,
+        primSchema.LightAPI(),
+        lightFn,
+        animType != UsdMayaJobExportArgsTokens->curves,
+        _GetSparseValueWriter());
+
+    // No splines for area lights, but we call the function to ensure that all attribute are written
+    UsdMayaTranslatorLight::WriteAreaLightAttrs(
+        usdTime, primSchema, lightFn, _GetSparseValueWriter());
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE

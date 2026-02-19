@@ -171,6 +171,7 @@ MObject MayaUsdProxyShapeBase::outStageDataAttr;
 MObject MayaUsdProxyShapeBase::outStageCacheIdAttr;
 MObject MayaUsdProxyShapeBase::variantFallbacksAttr;
 MObject MayaUsdProxyShapeBase::layerManagerAttr;
+MObject MayaUsdProxyShapeBase::recomputeLayersAttr;
 
 namespace {
 // utility function to extract the tag name from an anonymous layer.
@@ -494,6 +495,16 @@ MStatus MayaUsdProxyShapeBase::initialize()
     retValue = addAttribute(layerManagerAttr);
     CHECK_MSTATUS_AND_RETURN_IT(retValue);
 
+    recomputeLayersAttr
+        = numericAttrFn.create("recomputeLayers", "rcpl", MFnNumericData::kInt64, 0, &retValue);
+    CHECK_MSTATUS_AND_RETURN_IT(retValue);
+    numericAttrFn.setCached(true);
+    numericAttrFn.setReadable(true);
+    numericAttrFn.setStorable(true);
+    numericAttrFn.setHidden(true);
+    retValue = addAttribute(recomputeLayersAttr);
+    CHECK_MSTATUS_AND_RETURN_IT(retValue);
+
     //
     // add attribute dependencies
     //
@@ -555,6 +566,11 @@ MStatus MayaUsdProxyShapeBase::initialize()
     CHECK_MSTATUS_AND_RETURN_IT(retValue);
 
     retValue = attributeAffects(layerManagerAttr, outStageDataAttr);
+    CHECK_MSTATUS_AND_RETURN_IT(retValue);
+
+    retValue = attributeAffects(recomputeLayersAttr, outStageDataAttr);
+    CHECK_MSTATUS_AND_RETURN_IT(retValue);
+    retValue = attributeAffects(recomputeLayersAttr, inStageDataCachedAttr);
     CHECK_MSTATUS_AND_RETURN_IT(retValue);
 
     return retValue;
@@ -688,7 +704,7 @@ MStatus MayaUsdProxyShapeBase::compute(const MPlug& plug, MDataBlock& dataBlock)
         return computeInStageDataCached(dataBlock);
     } else if (plug == outTimeAttr) {
         auto retStatus = computeOutputTime(dataBlock);
-        ProxyAccessor::compute(_usdAccessor, plug, dataBlock);
+        ProxyAccessor::compute(_usdAccessor, plug, dataBlock, _proxyAccessorUseTargetedLayer);
         return retStatus;
     } else if (plug == outStageDataAttr) {
         auto ret = computeOutStageData(dataBlock);
@@ -696,7 +712,8 @@ MStatus MayaUsdProxyShapeBase::compute(const MPlug& plug, MDataBlock& dataBlock)
     } else if (plug == outStageCacheIdAttr) {
         return computeOutStageCacheId(dataBlock);
     } else if (plug.isDynamic()) {
-        return ProxyAccessor::compute(_usdAccessor, plug, dataBlock);
+        return ProxyAccessor::compute(
+            _usdAccessor, plug, dataBlock, _proxyAccessorUseTargetedLayer);
     }
 
     return MS::kUnknownParameter;
@@ -917,13 +934,8 @@ MStatus MayaUsdProxyShapeBase::computeInStageDataCached(MDataBlock& dataBlock)
         if (stageCached) {
             sharedUsdStage = UsdUtilsStageCache::Get().Find(cacheId);
 
-            // Check what is the cache connected to
-            MStringArray result;
-            MGlobal::executeCommand(
-                ("listConnections -t shape -shapes on " + this->name()), result);
-
             // The stage is only incoming if the cache is connected to a shape
-            if (stageCached && result.length()) {
+            if (stageCached && hasStageCacheIdConnections()) {
                 isIncomingStage = true;
             }
 
@@ -1727,17 +1739,23 @@ bool MayaUsdProxyShapeBase::isStageIncoming() const
         const auto cacheId = UsdStageCache::Id::FromLongInt(cacheIdNum);
         const auto stageCached = cacheId.IsValid() && UsdUtilsStageCache::Get().Contains(cacheId);
 
-        // Check what is the cache connected to
-        MStringArray result;
-        MGlobal::executeCommand(("listConnections -t shape -shapes on " + this->name()), result);
-
         // The stage is only incoming if the cache is connected to a shape
-        if (stageCached && result.length()) {
+        if (stageCached && hasStageCacheIdConnections()) {
             isIncomingStage = true;
         }
     }
 
     return isIncomingStage;
+}
+
+bool MayaUsdProxyShapeBase::hasStageCacheIdConnections() const
+{
+    MStringArray result;
+    MGlobal::executeCommand(
+        MString("listConnections -t shape -shapes on -source on -destination off ") + this->name()
+            + MString(".stageCacheId"),
+        result);
+    return result.length() > 0;
 }
 
 bool MayaUsdProxyShapeBase::isIncomingLayer(const std::string& layerIdentifier) const
@@ -1788,7 +1806,8 @@ MStatus MayaUsdProxyShapeBase::postEvaluation(
 
     if (context.isNormal() && evalType == PostEvaluationEnum::kEvaluatedDirectly) {
         MDataBlock dataBlock = forceCache();
-        ProxyAccessor::syncCache(_usdAccessor, thisMObject(), dataBlock);
+        ProxyAccessor::syncCache(
+            _usdAccessor, thisMObject(), dataBlock, _proxyAccessorUseTargetedLayer);
     }
 
     return MPxSurfaceShape::postEvaluation(context, evaluationNode, evalType);
