@@ -114,10 +114,10 @@ void moveLoadRules(
     // the internal vector and would invalidate iterators.
     const auto existingRules = loadRules.GetRules();
 
-    const bool hasSourceRules = std::any_of(
-        existingRules.begin(), existingRules.end(), [&fromPath](const auto& rule) {
-            return rule.first.HasPrefix(fromPath);
-        });
+    const bool hasSourceRules
+        = std::any_of(existingRules.begin(), existingRules.end(), [&fromPath](const auto& rule) {
+              return rule.first.HasPrefix(fromPath);
+          });
 
     // GetEffectiveRuleForPath accounts for ancestor rules, so even when no
     // explicit rules exist for fromPath the prim may still be governed by
