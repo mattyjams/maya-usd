@@ -110,8 +110,6 @@ void moveLoadRules(
 {
     auto loadRules = stage.GetLoadRules();
 
-    // Take a snapshot of the rules for safe iteration since AddRule mutates
-    // the internal vector and would invalidate iterators.
     const auto existingRules = loadRules.GetRules();
 
     const bool hasSourceRules
