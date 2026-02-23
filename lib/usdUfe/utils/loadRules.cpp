@@ -103,4 +103,59 @@ void removeRulesForPath(PXR_NS::UsdStage& stage, const PXR_NS::SdfPath& path)
     stage.SetLoadRules(loadRules);
 }
 
+void moveLoadRules(
+    PXR_NS::UsdStage&      stage,
+    const PXR_NS::SdfPath& fromPath,
+    const PXR_NS::SdfPath& destPath)
+{
+    auto loadRules = stage.GetLoadRules();
+
+    // Take a snapshot of the rules for safe iteration since AddRule mutates
+    // the internal vector and would invalidate iterators.
+    const auto existingRules = loadRules.GetRules();
+
+    const bool hasSourceRules = std::any_of(
+        existingRules.begin(), existingRules.end(), [&fromPath](const auto& rule) {
+            return rule.first.HasPrefix(fromPath);
+        });
+
+    // GetEffectiveRuleForPath accounts for ancestor rules, so even when no
+    // explicit rules exist for fromPath the prim may still be governed by
+    // an ancestor (e.g. an ancestor NoneRule unloads all descendants).
+    const auto desiredRule = loadRules.GetEffectiveRuleForPath(fromPath);
+
+    // If no rules explicitly reference the source path and the effective
+    // rule at the destination already matches, the rename cannot change
+    // load state so we can skip the expensive SetLoadRules entirely.
+    // This is the common case: all payloads loaded, no prim-specific rules.
+    if (!hasSourceRules && desiredRule == loadRules.GetEffectiveRuleForPath(destPath)) {
+        return;
+    }
+
+    // Duplicate rules from the source path to the destination path.
+    // Iterate over the snapshot to avoid iterator invalidation.
+    for (const auto& rule : existingRules) {
+        if (rule.first.HasPrefix(fromPath)) {
+            loadRules.AddRule(rule.first.ReplacePrefix(fromPath, destPath), rule.second);
+        }
+    }
+
+    // If the duplicated rules don't fully reproduce the desired effective
+    // rule (e.g. the source was governed by an ancestor with no explicit
+    // rule on itself), add an explicit rule at the destination.
+    if (desiredRule != loadRules.GetEffectiveRuleForPath(destPath)) {
+        loadRules.AddRule(destPath, desiredRule);
+    }
+
+    // Remove all rules that match the source path.
+    auto rules = loadRules.GetRules();
+    auto newEnd = std::remove_if(rules.begin(), rules.end(), [&fromPath](const auto& rule) {
+        return rule.first.HasPrefix(fromPath);
+    });
+    rules.erase(newEnd, rules.end());
+    loadRules.SetRules(rules);
+
+    stage.SetLoadRules(loadRules);
+}
+
 } // namespace USDUFE_NS_DEF
