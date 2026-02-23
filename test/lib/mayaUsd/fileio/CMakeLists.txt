@@ -6,11 +6,14 @@ set(TEST_SCRIPT_FILES
     testExportChaser.py
     testExportChaserJobContext.py
     testImportChaser.py
+    testImportChaserMultiImports.py
     testImportWithNamespace.py
     testJobContextRegistry.py
     testDisplayLayerSaveRestore.py
     testSaveMutedAnonLayer.py
     testSaveLockedAnonLayer.py
+    testSaveMixedLocations.py
+    testSaveConnectedStage.py
     testSaveUpAxisAndUnits.py
     testNonLocalEditTargetLayer.py
 

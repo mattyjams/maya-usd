@@ -188,6 +188,21 @@ if(UFE_CAMERAHANDLER_HAS_FINDALL)
     )
 endif()
 
+if (LOOKDEVXUFE_HAS_LEGACY_MTLX_DETECTION)
+    target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        LOOKDEVXUFE_HAS_LEGACY_MTLX_DETECTION=1
+    )
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            ${LookdevXUfe_LIBRARY}
+    )
+    target_include_directories(${PROJECT_NAME} 
+        PRIVATE
+            ${LookdevXUfe_INCLUDE_DIR}
+    )
+endif()
+
 if(CMAKE_UFE_V4_FEATURES_AVAILABLE)
     target_sources(${PROJECT_NAME}
         PRIVATE
@@ -380,7 +395,15 @@ if(IS_MACOSX OR IS_LINUX)
     mayaUsd_init_rpath(rpath "${PROJECT_NAME}")
     mayaUsd_add_rpath(rpath "../../..")
     if(IS_MACOSX AND DEFINED MAYAUSD_TO_USD_RELATIVE_PATH)
+        mayaUsd_add_rpath(rpath "../../../../../../Maya.app/Contents/MacOS")
+    endif()
+    if(DEFINED MAYAUSD_TO_USD_RELATIVE_PATH)
         mayaUsd_add_rpath(rpath "../../../../${MAYAUSD_TO_USD_RELATIVE_PATH}/lib")
+        if (IS_LINUX)
+            mayaUsd_add_rpath(rpath "../../../../${MAYAUSD_TO_USD_RELATIVE_PATH}/lib64")
+        endif()
+    elseif(DEFINED PXR_USD_LOCATION)
+        mayaUsd_add_rpath(rpath "${PXR_USD_LOCATION}/lib")
     endif()
     mayaUsd_install_rpath(rpath ${UFE_PYTHON_TARGET_NAME})
 endif()

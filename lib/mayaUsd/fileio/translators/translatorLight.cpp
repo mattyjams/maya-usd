@@ -92,17 +92,17 @@ bool UsdMayaTranslatorLight::WriteLightAttrs(
     const UsdTimeCode&         usdTime,
     const UsdLuxLightAPI&      usdLight,
     MFnLight&                  mayaLight,
+    bool                       exportTimeSamples,
     FlexibleSparseValueWriter* valueWriter)
 {
     MStatus status;
-    float   intensity = mayaLight.intensity(&status);
-    CHECK_MSTATUS_AND_RETURN(status, false);
-    UsdMayaWriteUtil::SetAttribute(usdLight.GetIntensityAttr(), intensity, usdTime, valueWriter);
 
-    UsdPrim prim = usdLight.GetPrim();
+    // Usd Splines can only animate attributes that are single floating point values.
+    // So color cannot be spline animates, thus we always export them as time samples.
+    // For the other "common" light attributes, we only export them if requested.
 
     MColor color = mayaLight.color(&status);
-    CHECK_MSTATUS_AND_RETURN(status, false);
+    CHECK_MSTATUS_AND_RETURN(status, false)
     UsdMayaWriteUtil::SetAttribute(
         usdLight.GetColorAttr(), GfVec3f(color.r, color.g, color.b), usdTime, valueWriter);
 
@@ -110,16 +110,19 @@ bool UsdMayaTranslatorLight::WriteLightAttrs(
     // in renderers. We won't be authoring it here, so that it follows USD default (false)
 
     bool rayTraceShadows = mayaLight.useRayTraceShadows(&status);
-    CHECK_MSTATUS_AND_RETURN(status, false);
+    CHECK_MSTATUS_AND_RETURN(status, false)
     // Here we're just considering "useRayTracedShadows" to enable UsdLux shadows,
     // and we're ignoring maya's "depthMapShadows" attribute
     if (rayTraceShadows) {
+        UsdPrim         prim = usdLight.GetPrim();
         UsdLuxShadowAPI shadowAPI = UsdLuxShadowAPI::Apply(prim);
-        UsdMayaWriteUtil::SetAttribute(
-            shadowAPI.CreateShadowEnableAttr(), true, usdTime, valueWriter);
+        if (exportTimeSamples) {
+            UsdMayaWriteUtil::SetAttribute(
+                shadowAPI.CreateShadowEnableAttr(), true, usdTime, valueWriter);
+        }
 
         const MColor shadowColor = mayaLight.shadowColor(&status);
-        CHECK_MSTATUS_AND_RETURN(status, false);
+        CHECK_MSTATUS_AND_RETURN(status, false)
         UsdMayaWriteUtil::SetAttribute(
             shadowAPI.CreateShadowColorAttr(),
             GfVec3f(shadowColor.r, shadowColor.g, shadowColor.b),
@@ -127,18 +130,26 @@ bool UsdMayaTranslatorLight::WriteLightAttrs(
             valueWriter);
     }
 
-    // Some renderers have a float value for diffuse and specular just like UsdLuxLightAPI does (it
-    // defaults to 1) But Maya lights also have a checkbox to enable/disable diffuse and specular.
-    // We can just set it to 0 or 1 depending on this boolean
-    bool lightDiffuse = mayaLight.lightDiffuse(&status);
-    CHECK_MSTATUS_AND_RETURN(status, false);
-    UsdMayaWriteUtil::SetAttribute(
-        usdLight.GetDiffuseAttr(), lightDiffuse ? 1.f : 0.f, usdTime, valueWriter);
+    if (exportTimeSamples) {
 
-    bool lightSpecular = mayaLight.lightSpecular(&status);
-    CHECK_MSTATUS_AND_RETURN(status, false);
-    UsdMayaWriteUtil::SetAttribute(
-        usdLight.GetSpecularAttr(), lightSpecular ? 1.f : 0.f, usdTime, valueWriter);
+        float intensity = mayaLight.intensity(&status);
+        CHECK_MSTATUS_AND_RETURN(status, false)
+        UsdMayaWriteUtil::SetAttribute(
+            usdLight.GetIntensityAttr(), intensity, usdTime, valueWriter);
+
+        // Some renderers have a float value for diffuse and specular just like UsdLuxLightAPI does
+        // (it defaults to 1) But Maya lights also have a checkbox to enable/disable diffuse and
+        // specular. We can just set it to 0 or 1 depending on this boolean
+        bool lightDiffuse = mayaLight.lightDiffuse(&status);
+        CHECK_MSTATUS_AND_RETURN(status, false)
+        UsdMayaWriteUtil::SetAttribute(
+            usdLight.GetDiffuseAttr(), lightDiffuse ? 1.f : 0.f, usdTime, valueWriter);
+
+        bool lightSpecular = mayaLight.lightSpecular(&status);
+        CHECK_MSTATUS_AND_RETURN(status, false)
+        UsdMayaWriteUtil::SetAttribute(
+            usdLight.GetSpecularAttr(), lightSpecular ? 1.f : 0.f, usdTime, valueWriter);
+    }
 
     return true;
 }
@@ -308,7 +319,8 @@ static bool _ReadDirectionalLight(
 
 bool UsdMayaTranslatorLight::WritePointLightSplineAttrs(
     const UsdLuxLightAPI& usdLight,
-    MFnLight&             mayaLight)
+    MFnLight&             mayaLight,
+    double                metersPerUnitScale)
 {
 #if PXR_VERSION >= 2411
     MStatus status;
@@ -319,7 +331,11 @@ bool UsdMayaTranslatorLight::WritePointLightSplineAttrs(
     MFnDependencyNode depNode(lightObject, &status);
 
     UsdMayaSplineUtils::WriteSplineAttribute<float>(
-        depNode, usdPrim, _tokens->LightRadiusPlugName.GetString(), UsdLuxTokens->inputsRadius);
+        depNode,
+        usdPrim,
+        _tokens->LightRadiusPlugName.GetString(),
+        UsdLuxTokens->inputsRadius,
+        metersPerUnitScale);
 
     if (auto treatAsPointAttr = usdPrim.GetAttribute(UsdLuxTokens->treatAsPoint)) {
         if (auto radAttr = usdPrim.GetAttribute(UsdLuxTokens->inputsRadius)) {
@@ -337,6 +353,7 @@ bool UsdMayaTranslatorLight::WritePointLightAttrs(
     const UsdTimeCode&         usdTime,
     const UsdLuxSphereLight&   usdLight,
     MFnPointLight&             mayaLight,
+    double                     metersPerUnitScale,
     FlexibleSparseValueWriter* valueWriter)
 {
     MStatus status;
@@ -348,7 +365,8 @@ bool UsdMayaTranslatorLight::WritePointLightAttrs(
     CHECK_MSTATUS_AND_RETURN(status, false);
     float lightRadius = lightRadiusPlug.asFloat();
 
-    UsdMayaWriteUtil::SetAttribute(usdLight.GetRadiusAttr(), lightRadius, usdTime, valueWriter);
+    UsdMayaWriteUtil::SetScaledAttribute(
+        usdLight.GetRadiusAttr(), lightRadius, metersPerUnitScale, usdTime, valueWriter);
     UsdMayaWriteUtil::SetAttribute(
         usdLight.GetTreatAsPointAttr(), (lightRadius == 0.f), usdTime, valueWriter);
     return true;
@@ -375,7 +393,8 @@ static bool _ReadPointLight(
 
 bool UsdMayaTranslatorLight::WriteSpotLightSplineAttrs(
     const UsdLuxLightAPI& usdLight,
-    MFnLight&             mayaLight)
+    MFnLight&             mayaLight,
+    double                metersPerUnitScale)
 {
 #if PXR_VERSION >= 2411
     MStatus status;
@@ -386,7 +405,11 @@ bool UsdMayaTranslatorLight::WriteSpotLightSplineAttrs(
     MFnDependencyNode depNode(lightObject, &status);
 
     UsdMayaSplineUtils::WriteSplineAttribute<float>(
-        depNode, usdPrim, _tokens->LightRadiusPlugName.GetString(), UsdLuxTokens->inputsRadius);
+        depNode,
+        usdPrim,
+        _tokens->LightRadiusPlugName.GetString(),
+        UsdLuxTokens->inputsRadius,
+        metersPerUnitScale);
 
     if (auto treatAsPointAttr = usdPrim.GetAttribute(UsdLuxTokens->treatAsPoint)) {
         if (auto radAttr = usdPrim.GetAttribute(UsdLuxTokens->inputsRadius)) {
@@ -455,6 +478,7 @@ bool UsdMayaTranslatorLight::WriteSpotLightAttrs(
     const UsdTimeCode&         usdTime,
     const UsdLuxSphereLight&   usdLight,
     MFnSpotLight&              mayaLight,
+    double                     metersPerUnitScale,
     FlexibleSparseValueWriter* valueWriter)
 {
     MStatus status;
@@ -464,7 +488,8 @@ bool UsdMayaTranslatorLight::WriteSpotLightAttrs(
     CHECK_MSTATUS_AND_RETURN(status, false);
     float lightRadius = lightRadiusPlug.asFloat();
 
-    UsdMayaWriteUtil::SetAttribute(usdLight.GetRadiusAttr(), lightRadius, usdTime, valueWriter);
+    UsdMayaWriteUtil::SetScaledAttribute(
+        usdLight.GetRadiusAttr(), lightRadius, metersPerUnitScale, usdTime, valueWriter);
     UsdMayaWriteUtil::SetAttribute(
         usdLight.GetTreatAsPointAttr(), (lightRadius == 0.f), usdTime, valueWriter);
 

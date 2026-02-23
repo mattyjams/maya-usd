@@ -47,6 +47,7 @@ struct UsdMayaTranslatorLight
         const UsdTimeCode&         usdTime,
         const UsdLuxLightAPI&      usdLight,
         MFnLight&                  mayaLight,
+        bool                       exportTimeSamples,
         FlexibleSparseValueWriter* valueWriter = nullptr);
 
     MAYAUSD_CORE_PUBLIC
@@ -71,10 +72,14 @@ struct UsdMayaTranslatorLight
         const UsdTimeCode&         usdTime,
         const UsdLuxSphereLight&   usdLight,
         MFnPointLight&             mayaLight,
+        double                     metersPerUnitScale,
         FlexibleSparseValueWriter* valueWriter = nullptr);
 
     MAYAUSD_CORE_PUBLIC
-    static bool WritePointLightSplineAttrs(const UsdLuxLightAPI& usdLight, MFnLight& mayaLight);
+    static bool WritePointLightSplineAttrs(
+        const UsdLuxLightAPI& usdLight,
+        MFnLight&             mayaLight,
+        double                metersPerUnitScale);
 
     /// Exports Maya's spot light attributes using UsdLuxSphereLight and UsdLuxShapingAPI schemas
     MAYAUSD_CORE_PUBLIC
@@ -82,10 +87,14 @@ struct UsdMayaTranslatorLight
         const UsdTimeCode&         usdTime,
         const UsdLuxSphereLight&   usdLight,
         MFnSpotLight&              mayaLight,
+        double                     metersPerUnitScale,
         FlexibleSparseValueWriter* valueWriter = nullptr);
 
     MAYAUSD_CORE_PUBLIC
-    static bool WriteSpotLightSplineAttrs(const UsdLuxLightAPI& usdLight, MFnLight& mayaLight);
+    static bool WriteSpotLightSplineAttrs(
+        const UsdLuxLightAPI& usdLight,
+        MFnLight&             mayaLight,
+        double                metersPerUnitScale);
 
     /// Exports Maya's area light attributes using UsdLuxRectLight schema
     MAYAUSD_CORE_PUBLIC
