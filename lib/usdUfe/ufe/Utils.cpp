@@ -377,7 +377,9 @@ std::string uniqueNameMaxSuffix(const TfToken::HashSet& existingNames, std::stri
 
     int maxSuffix = 0;
 
-    // Scan existing names to find the maximum suffix for this base
+    // Scan existing names to find the maxSuffix for this base.
+    // Padding width is from the sibling with the max value, or on a tie, choose the less padded
+    // width.
     for (const TfToken& token : existingNames) {
         const std::string& existingName = token.GetString();
 
@@ -388,11 +390,15 @@ std::string uniqueNameMaxSuffix(const TfToken::HashSet& existingNames, std::stri
         }
 
         int value = std::stoi(existingNameSuffix);
-        maxSuffix = std::max(maxSuffix, value);
-        lenSuffix = std::max(lenSuffix, existingNameSuffix.length());
+        if (value > maxSuffix) {
+            maxSuffix = value;
+            lenSuffix = existingNameSuffix.length();
+        } else if (value == maxSuffix) {
+            lenSuffix = std::min(lenSuffix, existingNameSuffix.length());
+        }
     }
 
-    // Format suffix with zero-padding
+    // Format suffix with zero-padding.
     suffixStr = std::to_string(++maxSuffix);
     suffixStr = std::string(lenSuffix - std::min(lenSuffix, suffixStr.length()), '0') + suffixStr;
 
