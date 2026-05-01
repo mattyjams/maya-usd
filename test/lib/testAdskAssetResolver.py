@@ -17,19 +17,11 @@
 #
 
 import unittest
-import os
-import time
-
-from pxr import Sdf, Usd
 from pxr import Ar as pxrAr
 import AdskAssetResolver as ar
 from maya import cmds
-import maya.utils
-import mayaUsd
 import fixturesUtils
 import mayaUtils
-import ufe
-from maya.internal.ufeSupport import ufeCmdWrapper as ufeCmd
 
 class AdskAssetResolverTestCase(unittest.TestCase):
 
@@ -55,7 +47,7 @@ class AdskAssetResolverTestCase(unittest.TestCase):
         self.assertIsNotNone(adskResolver, "No underlying asset resolver was found")       
         try:
             # This is Autodesk Asset Resolver api. If it doesn't work, AR is not properly loaded.
-            version = ar.VersionInfo() 
+            ar.VersionInfo() 
         except Exception as e:
             self.fail(f"Autodesk Asset Resolver API not available or failed to load. {e}")
 
