@@ -131,7 +131,7 @@ if (AdskUsdAssetResolver_FOUND)
 else()
     # If MAYAUSD_FORCE_AR_TEST is set to 1, fail the build when Asset Resolver is not found
     if (DEFINED ENV{MAYAUSD_FORCE_AR_TEST} AND "$ENV{MAYAUSD_FORCE_AR_TEST}" STREQUAL "1")
-        message(FATAL_ERROR "MAYAUSD_FORCE_AR_TEST is set to 1 but AdskAssetResolver was not found. ")
+        message(FATAL_ERROR "MAYAUSD_FORCE_AR_TEST is set to 1 but AdskUsdAssetResolver was not found. ")
     endif()
 endif()
 
