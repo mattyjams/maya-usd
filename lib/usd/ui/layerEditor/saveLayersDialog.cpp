@@ -366,8 +366,8 @@ void SaveLayerPathRow::postUpdate()
             && entry->needToSaveAsRelative()) {
             fs::filesystem::path relativeAnchor
                 = UsdMayaUtilFileSystem::getDir(getAbsolutePath().toStdString());
-            fs::filesystem::path relatievPath = entry->_pathEdit->text().toStdString();
-            fs::filesystem::path absolutePath = (relativeAnchor / relatievPath).lexically_normal();
+            fs::filesystem::path relativePath = entry->_pathEdit->text().toStdString();
+            fs::filesystem::path absolutePath = (relativeAnchor / relativePath).lexically_normal();
             entry->setPathToSaveAs(absolutePath.generic_string(), true);
         }
     });

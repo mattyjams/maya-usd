@@ -470,7 +470,9 @@ static bool isSameFileName(const MString& found, const MString& expected)
 {
     const auto expectedPath = fs::filesystem::path(expected.asChar());
     auto       foundPath = fs::filesystem::path(found.asChar());
-    if (foundPath == expectedPath)
+    // fs::equivalent() Handles case-insensitivity on Windows automatically
+    std::error_code ec; // Avoid throwing since we might be comparing non-existing files
+    if ((foundPath == expectedPath) || fs::filesystem::equivalent(foundPath, expectedPath, ec))
         return true;
 
     // If the expected file is not absolute, we might not get an exact match

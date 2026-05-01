@@ -186,8 +186,7 @@ std::pair<std::string, bool> UsdMayaUtilFileSystem::makePathRelativeTo(
         return std::make_pair(fileName, true);
     }
 
-    fs::filesystem::path relativePath = absolutePath.lexically_relative(relativeToDir);
-
+    fs::filesystem::path relativePath = fs::filesystem::relative(absolutePath, relativeToDir);
     if (relativePath.empty()) {
         return std::make_pair(fileName, false);
     }
