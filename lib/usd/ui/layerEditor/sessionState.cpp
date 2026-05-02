@@ -23,6 +23,11 @@ void SessionState::setAutoHideSessionLayer(bool hideIt)
     Q_EMIT autoHideSessionLayerSignal(_autoHideSessionLayer);
 }
 
+void SessionState::setEchoEditForwarding(bool echo)
+{
+    _echoEditForwarding = echo;
+}
+
 void SessionState::setDisplayLayerContents(bool showIt)
 {
     _displayLayerContents = showIt;

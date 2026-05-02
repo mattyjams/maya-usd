@@ -53,6 +53,7 @@ public:
     // API implementation
     void setStageEntry(StageEntry const& in_entry) override;
     void setAutoHideSessionLayer(bool hide) override;
+    void setEchoEditForwarding(bool echo) override;
     void setDisplayLayerContents(bool show) override;
     void setDisplayLayerExpandAllValues(bool expand) override;
 

@@ -48,6 +48,8 @@ namespace {
 MString PROXY_NODE_TYPE = "mayaUsdProxyShapeBase";
 MString AUTO_HIDE_OPTION_VAR
     = UsdMayaUtil::convert(MayaUsdOptionVars->LayerEditorAutoHideSessionLayer);
+MString ECHO_EDIT_FORWARDING_OPTION_VAR
+    = UsdMayaUtil::convert(MayaUsdOptionVars->LayerEditorEchoEditForwarding);
 MString DISPLAY_LAYER_CONTENTS_OPTION_VAR
     = UsdMayaUtil::convert(MayaUsdOptionVars->LayerEditorDisplayLayerContents);
 MString DISPLAY_LAYER_EXPAND_ALL_VALUES_OPTION_VAR
@@ -61,6 +63,9 @@ MayaSessionState::MayaSessionState()
 {
     if (MGlobal::optionVarExists(AUTO_HIDE_OPTION_VAR)) {
         _autoHideSessionLayer = MGlobal::optionVarIntValue(AUTO_HIDE_OPTION_VAR) != 0;
+    }
+    if (MGlobal::optionVarExists(ECHO_EDIT_FORWARDING_OPTION_VAR)) {
+        _echoEditForwarding = MGlobal::optionVarIntValue(ECHO_EDIT_FORWARDING_OPTION_VAR) != 0;
     }
     if (MGlobal::optionVarExists(DISPLAY_LAYER_CONTENTS_OPTION_VAR)) {
         _displayLayerContents = MGlobal::optionVarIntValue(DISPLAY_LAYER_CONTENTS_OPTION_VAR) != 0;
@@ -441,6 +446,12 @@ void MayaSessionState::setAutoHideSessionLayer(bool hideIt)
     int value = hideIt ? 1 : 0;
     MGlobal::setOptionVarValue(AUTO_HIDE_OPTION_VAR, value);
     PARENT_CLASS::setAutoHideSessionLayer(hideIt);
+}
+
+void MayaSessionState::setEchoEditForwarding(bool echo)
+{
+    MGlobal::setOptionVarValue(ECHO_EDIT_FORWARDING_OPTION_VAR, echo ? 1 : 0);
+    PARENT_CLASS::setEchoEditForwarding(echo);
 }
 
 void MayaSessionState::setDisplayLayerContents(bool showIt)

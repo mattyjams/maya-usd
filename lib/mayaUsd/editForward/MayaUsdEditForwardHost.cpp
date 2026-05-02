@@ -17,6 +17,14 @@
 
 #include "MayaUsdEditForwardCommand.h"
 
+#include <mayaUsd/base/tokens.h>
+#include <mayaUsd/utils/util.h>
+
+#include <AdskUsdEditForward/Record.h>
+
+#include <pxr/base/vt/dictionary.h>
+#include <pxr/base/vt/value.h>
+
 #include <usdUfe/base/debugCodes.h>
 #include <usdUfe/ufe/UsdUndoableCommand.h>
 #include <usdUfe/ufe/trf/Utils.h>
@@ -28,7 +36,9 @@
 
 namespace {
 
-bool idleTaskQueued = false;
+bool    idleTaskQueued = false;
+MString ECHO_OPTION_VAR
+    = UsdMayaUtil::convert(MayaUsdOptionVars->LayerEditorEchoEditForwarding);
 
 bool IsInUsdUndoBlock() { return UsdUfe::UsdUndoBlock::depth() > 0; }
 
@@ -138,4 +148,20 @@ void MayaUsdEditForwardHost::PauseEditForwarding(bool pause) { _paused = pause; 
 void MayaUsdEditForwardHost::TrackLayerStates(const pxr::SdfLayerHandle& layer)
 {
     UsdUfe::UsdUndoManager::instance().trackLayerStates(layer);
+}
+
+bool MayaUsdEditForwardHost::WantsEcho() const
+{
+    return MGlobal::optionVarExists(ECHO_OPTION_VAR)
+        && MGlobal::optionVarIntValue(ECHO_OPTION_VAR) != 0;
+}
+
+void MayaUsdEditForwardHost::SetWantsEcho(bool echo)
+{
+    MGlobal::setOptionVarValue(ECHO_OPTION_VAR, echo ? 1 : 0);
+}
+
+void MayaUsdEditForwardHost::Echo(const AdskUsdEditForward::Record& record)
+{
+    MGlobal::displayInfo(("[Edit Forwarding] " + record.ToString()).c_str());
 }

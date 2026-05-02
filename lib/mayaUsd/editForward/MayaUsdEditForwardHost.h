@@ -36,6 +36,10 @@ public:
     void PauseEditForwarding(bool pause) override;
     void TrackLayerStates(const pxr::SdfLayerHandle& layer) override;
 
+    bool WantsEcho() const override;
+    void SetWantsEcho(bool echo);
+    void Echo(const AdskUsdEditForward::Record& record) override;
+
 private:
     bool _paused = false;
 };
