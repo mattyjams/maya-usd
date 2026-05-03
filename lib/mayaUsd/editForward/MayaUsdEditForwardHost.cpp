@@ -20,8 +20,6 @@
 #include <mayaUsd/base/tokens.h>
 #include <mayaUsd/utils/util.h>
 
-#include <AdskUsdEditForward/Record.h>
-
 #include <usdUfe/base/debugCodes.h>
 #include <usdUfe/ufe/UsdUndoableCommand.h>
 #include <usdUfe/ufe/trf/Utils.h>
@@ -30,6 +28,8 @@
 
 #include <maya/MGlobal.h>
 #include <ufe/undoableCommandMgr.h>
+
+#include <AdskUsdEditForward/Record.h>
 
 namespace {
 

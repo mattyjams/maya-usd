@@ -128,10 +128,10 @@ protected:
     StageEntry _currentStageEntry;
     bool       _autoHideSessionLayer { true };
 #ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
-    bool       _echoEditForwarding { false };
+    bool _echoEditForwarding { false };
 #endif
-    bool       _displayLayerContents { true };
-    bool       _displayLayerExpandAllValues { false };
+    bool _displayLayerContents { true };
+    bool _displayLayerExpandAllValues { false };
 };
 
 } // namespace UsdLayerEditor
