@@ -23,10 +23,12 @@ void SessionState::setAutoHideSessionLayer(bool hideIt)
     Q_EMIT autoHideSessionLayerSignal(_autoHideSessionLayer);
 }
 
+#ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
 void SessionState::setEchoEditForwarding(bool echo)
 {
     _echoEditForwarding = echo;
 }
+#endif
 
 void SessionState::setDisplayLayerContents(bool showIt)
 {

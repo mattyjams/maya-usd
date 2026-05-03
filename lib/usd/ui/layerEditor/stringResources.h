@@ -54,8 +54,6 @@ const auto kDisplayLayerContents         { create("kDisplayLayerContents", "Disp
 const auto kDisplayLayerContentsEmpty    { create("kDisplayLayerContentsEmpty", "Select a single layer to display the contents.\n\nLarge layers may take longer to load.") };
 const auto kEditForwardBanner            { create("kEditForwardBanner", "Edits made in the sessionLayer are automatically forwarded to other layers based on rule configuration.") };
 #ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
-const auto kToggleEditForwarding         { create("kToggleEditForwarding", "Toggle Edit Forwarding") };
-const auto kConfigureEditForwarding      { create("kConfigureEditForwarding", "Configure Edit Forwarding") };
 const auto kEchoEditForwarding           { create("kEchoEditForwarding", "Echo Edit Forwarding in Script Editor") };
 #endif
 const auto kDisplayLayerExpandAllValues  { create("kDisplayLayerExpandAllValues", "Expand All Values") };

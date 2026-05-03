@@ -27,7 +27,7 @@
 class MAYAUSD_CORE_PUBLIC MayaUsdEditForwardHost : public AdskUsdEditForward::Host
 {
 public:
-    MayaUsdEditForwardHost() = default;
+    MayaUsdEditForwardHost();
     ~MayaUsdEditForwardHost() = default;
 
     void ExecuteInCmd(std::function<void()> callback, bool immediate) override;
@@ -42,6 +42,7 @@ public:
 
 private:
     bool _paused = false;
+    bool _wantsEcho = false;
 };
 
 #endif // MAYAUSD_EDITFORWARDHOST_H

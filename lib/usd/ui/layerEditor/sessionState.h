@@ -78,8 +78,10 @@ public:
     // properties
     virtual bool autoHideSessionLayer() const { return _autoHideSessionLayer; }
     virtual void setAutoHideSessionLayer(bool hide);
+#ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
     virtual bool echoEditForwarding() const { return _echoEditForwarding; }
     virtual void setEchoEditForwarding(bool echo);
+#endif
     virtual bool displayLayerContents() const { return _displayLayerContents; }
     virtual void setDisplayLayerContents(bool show);
     virtual bool diplayLayerExpandAllValues() const { return _displayLayerExpandAllValues; }
@@ -125,7 +127,9 @@ Q_SIGNALS:
 protected:
     StageEntry _currentStageEntry;
     bool       _autoHideSessionLayer { true };
+#ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
     bool       _echoEditForwarding { false };
+#endif
     bool       _displayLayerContents { true };
     bool       _displayLayerExpandAllValues { false };
 };
