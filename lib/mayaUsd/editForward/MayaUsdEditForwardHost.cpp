@@ -45,7 +45,9 @@ MayaUsdEditForwardHost::MayaUsdEditForwardHost()
 {
     const MString optionVar
         = UsdMayaUtil::convert(MayaUsdOptionVars->LayerEditorEchoEditForwarding);
-    _wantsEcho = MGlobal::optionVarIntValue(optionVar) != 0;
+    if (MGlobal::optionVarExists(optionVar)) {
+        _wantsEcho = MGlobal::optionVarIntValue(optionVar) != 0;
+    }
 }
 
 void MayaUsdEditForwardHost::ExecuteInCmd(std::function<void()> callback, bool immediate)
