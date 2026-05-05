@@ -33,61 +33,25 @@
 
 namespace MAYAUSD_NS_DEF {
 
-/*! \brief Plugin-side registry that owns the lifecycle of all UsdSettingsNode instances.
- *
- *  UsdSceneSettingsManager keys every managed instance by its Maya DG node name
- *  (e.g. "UsdDefaultRenderSettings"). Each registered node name is paired with a
- *  populator function that seeds the node's USD stage with domain-specific content.
- *
- *  For each registered node name the manager guarantees that exactly one non-referenced
- *  UsdSettingsNode (of type UsdDefaultSettings) exists in the scene at all times while the
- *  plugin is loaded. The guarantee is upheld across File > New, File > Open, File > Save, and
- *  Maya Reference workflows.
- *
- *  Because nodes are locked at creation, the DG node name is stable for the lifetime of
- *  the scene and serves as both the human-readable display name and the unique key used
- *  by the manager's lookup tables.
- *
- *  Usage:
- *  \code
- *  // Register a node once (typically via a static initializer in a .cpp file):
- *  UsdSceneSettingsManager::registerSettingNode(
- *      "UsdDefaultRenderSettings",  // Maya DG node name (also the manager's lookup key)
- *      [](UsdStageRefPtr stage) {
- *          // populate stage with domain-specific USD prims
- *      });
- *
- *  // Obtain the stage for a registered node:
- *  UsdStageRefPtr stage = UsdSceneSettingsManager::getStage("UsdDefaultRenderSettings");
- *  \endcode
- *
- *  The manager is activated by calling onPluginInitialize() from the mayaUsdPlugin
- *  entry point (plugin/adsk/plugin/plugin.cpp::initializePlugin) and cleaned up via
- *  onPluginFinalize() in the matching uninitializePlugin path.
- */
+//! Plugin-side registry that owns the lifecycle of all UsdSettingsNode
+//! instances. Each managed node is keyed by its locked Maya DG node name (e.g.
+//! "UsdDefaultRenderSettings") and paired with a populator that seeds its USD
+//! stage. The manager guarantees exactly one non-referenced instance per
+//! registered name across File > New, Open, Save and Maya Reference workflows.
+//! Activated from the mayaUsdPlugin entry point via onPluginInitialize() /
+//! onPluginFinalize().
 class MAYAUSD_CORE_PUBLIC UsdSceneSettingsManager
 {
 public:
-    //! Signature of the populator function that seeds a node's USD stage.
+    //! Seeds a managed node's USD stage with domain-specific content.
     using Populator = std::function<void(PXR_NS::UsdStageRefPtr)>;
 
     // -----------------------------------------------------------------------
     // Registration
     // -----------------------------------------------------------------------
 
-    /*! Register a settings node by its DG node name.
-     *
-     *  The \p nodeName string is used directly as the Maya DG node name when the
-     *  manager creates the node (e.g. "UsdDefaultRenderSettings"). The node is locked
-     *  immediately after creation, so its name is stable and is reused as the
-     *  manager's lookup key for all subsequent find / getStage calls.
-     *
-     *  If the plugin is already initialized when registerSettingNode() is called (e.g. a
-     *  sub-plugin loaded after the main plugin), the corresponding node is created immediately.
-     *
-     *  \param nodeName  Maya DG node name and lookup key, e.g. "UsdDefaultRenderSettings".
-     *  \param populate  Function invoked once to seed the stage with domain content.
-     */
+    //! Register a settings node by its DG node name. If the plugin is already
+    //! initialized (sub-plugin load), the node is created immediately.
     static void registerSettingNode(const std::string& nodeName, Populator populate);
 
     //! Invoke the populator for \p nodeName on \p stage. Called from
@@ -98,69 +62,50 @@ public:
     // Node access
     // -----------------------------------------------------------------------
 
-    //! Return the live MObject for the managed singleton named \p nodeName,
-    //! or a null MObject if none is tracked. Pure O(1) cache lookup; the
-    //! manager itself is the only authority on which singletons exist (see
-    //! the class doc), so this never falls through to a scene scan.
+    //! Live MObject for \p nodeName, or a null MObject if none is tracked.
+    //! O(1) cache lookup; never falls through to a scene scan.
     static MObject find(const std::string& nodeName);
 
-    //! Return the USD stage for \p nodeName, creating the node if needed.
+    //! USD stage for \p nodeName, creating the node if needed.
     static PXR_NS::UsdStageRefPtr getStage(const std::string& nodeName);
 
-    //! Return the USD stage for the managed node whose DG name is \p nodeName,
-    //! or nullptr if no such managed node exists. Unlike getStage(), this never
-    //! creates the node: callers that pass an unregistered or torn-down name
-    //! always get nullptr. The stage itself is materialized lazily on first
-    //! call, which runs the populator and fires the stage observer hook.
-    //! Used by the UFE stage resolver so GatewayHierarchy descent can resolve
-    //! a settings-node UFE path.
+    //! Non-creating variant of getStage(): returns nullptr for unregistered or
+    //! torn-down names. The stage itself is still materialized lazily on first
+    //! call (which runs the populator and fires the stage observer hook).
     static PXR_NS::UsdStageRefPtr getStageForNodeName(const std::string& nodeName);
 
-    //! Reverse lookup: return the live MObject of the managed node whose USD stage
-    //! matches \p stage, or a null MObject if none. Does NOT trigger lazy stage
-    //! creation (uses UsdSettingsNode::hasStage()). Used by the UFE stagePath()
-    //! resolver as a non-mutating fallback so that StagesSubject::stageChanged can
-    //! map a sender stage back to its UFE gateway path and forward UFE notifications.
+    //! Reverse lookup: live MObject of the managed node whose stage matches
+    //! \p stage, or a null MObject if none. Does NOT trigger lazy stage
+    //! creation (uses UsdSettingsNode::hasStage()).
     static MObject nodeForStage(PXR_NS::UsdStageWeakPtr stage);
 
-    /*! Return the live USD stages of all managed nodes that have already
-     *  materialized a stage. Does NOT trigger lazy stage creation (only
-     *  returns stages where UsdSettingsNode::hasStage() is true).
-     *
-     *  Intended for callers that want to walk live settings-node stages
-     *  without perturbing them — e.g. MayaStagesSubject::setupListeners()
-     *  rebuilding USD-notice observation after a clearListeners().
-     */
+    //! Stages of all managed nodes that have already materialized one.
+    //! Does NOT trigger lazy creation. Intended for non-perturbing walks.
     static std::vector<PXR_NS::UsdStageRefPtr> getAllLiveStages();
 
     // -----------------------------------------------------------------------
     // Stage observation hook
     //
-    // The UFE layer installs a hook here at plugin initialization. The hook
-    // is invoked exactly once for each stage whenever a managed node first
-    // materializes its USD stage (lazy ensureStage() or deserialization on
-    // File > Open). It lets the UFE notification subject register USD
-    // listeners on the new stage without making this layer depend on UFE.
-    // Lookup APIs (getStage, getStageForNodeName) are pure getters; they do
-    // not invoke the hook.
+    // Lets the UFE layer attach USD-notice listeners to each newly
+    // materialized stage without making this layer depend on UFE. Lookup APIs
+    // are pure getters and do not invoke the hook.
     // -----------------------------------------------------------------------
 
     using StageObserverHook = std::function<void(const PXR_NS::UsdStageRefPtr&)>;
 
-    //! Install (or clear, with a default-constructed argument) the hook.
+    //! Install the hook; pass a default-constructed argument to clear it.
     static void setStageObserverHook(StageObserverHook hook);
 
     //! Invoke the installed hook (if any) for \p stage. Called by
     //! UsdSettingsNode::ensureStage() and ::deserializeFromAttributes()
-    //! immediately after the stage is materialized. No-op if no hook is
-    //! installed or \p stage is null.
+    //! immediately after the stage is materialized.
     static void notifyStageObserver(const PXR_NS::UsdStageRefPtr& stage);
 
     // -----------------------------------------------------------------------
     // Plugin lifecycle (called from MayaUsdProxyShapePlugin)
     // -----------------------------------------------------------------------
 
-    //! Install scene callbacks and create one node per registered node name.
+    //! Install scene callbacks and create one node per registered name.
     //! Must be called after registerNode() for UsdSettingsNode::typeName.
     static void onPluginInitialize();
 
@@ -169,36 +114,28 @@ public:
     static void onPluginFinalize();
 
 private:
-    //! Return the live MObject for \p nodeName, creating it if it does not
-    //! yet exist. Used by the manager's own create-on-demand and lifecycle
-    //! paths; external callers go through getStage() instead.
+    //! Live MObject for \p nodeName, creating it if absent. Used internally;
+    //! external callers go through getStage().
     static MObject findOrCreate(const std::string& nodeName);
 
     //! Create a UsdSettingsNode whose locked DG name is \p nodeName.
     static MObject createNode(const std::string& nodeName);
 
-    //! Scan the scene for existing UsdSettingsNode instances and populate the
-    //! instances map.
+    //! Scan the scene and rebuild the instances map.
     static void rebuildInstancesFromScene();
 
-    //! Cast a valid MObjectHandle to a UsdSettingsNode*. Returns nullptr on failure.
+    //! Cast a valid MObjectHandle to a UsdSettingsNode*. nullptr on failure.
     static UsdSettingsNode* nodeFromHandle(const MObjectHandle& handle);
 
     static void onAfterNew(void* clientData);
     static void onAfterOpen(void* clientData);
     static void onBeforeSave(void* clientData);
 
-    // Storage is wrapped in function-local statics so registration from
-    // other TUs' static initializers is order-independent.
-
-    //! Registered node name -> populator function.
-    static std::map<std::string, Populator>& registry();
-
-    //! Registered node name -> live node handle.
+    // Function-local statics so registration from other TUs' static
+    // initializers is order-independent.
+    static std::map<std::string, Populator>&     registry();
     static std::map<std::string, MObjectHandle>& instances();
-
-    //! Optional hook called after a managed node materializes its USD stage.
-    static StageObserverHook& stageObserverHook();
+    static StageObserverHook&                    stageObserverHook();
 
     static MCallbackId _afterNewCbId;
     static MCallbackId _afterOpenCbId;

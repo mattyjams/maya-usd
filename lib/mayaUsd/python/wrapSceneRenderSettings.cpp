@@ -14,58 +14,10 @@
 // limitations under the License.
 //
 
-#include <mayaUsd/nodes/usdSceneSettingsManager.h>
+#include <mayaUsd/nodes/sceneRenderSettings.h>
 #include <mayaUsd/nodes/usdSettingsNode.h>
 
-#include <pxr/usd/sdf/path.h>
-#include <pxr/usd/usd/prim.h>
 #include <pxr_python.h>
-
-#include <maya/MFnDependencyNode.h>
-
-namespace {
-
-// DG node name shared by all render-settings helpers in this file.
-// Matches the name used by the registration in sceneRenderSettings.cpp.
-static const std::string kRenderSettingsNodeName("UsdDefaultRenderSettings");
-
-// Stage metadata key under which the render settings prim path is published.
-static const PXR_NS::TfToken kRenderSettingsPrimPathToken("renderSettingsPrimPath");
-
-// ---------------------------------------------------------------------------
-// Singleton discovery / stage access
-// ---------------------------------------------------------------------------
-
-std::string SceneRenderSettings_find()
-{
-    MObject obj = MayaUsd::UsdSceneSettingsManager::find(kRenderSettingsNodeName);
-    if (obj.isNull()) {
-        return {};
-    }
-    MFnDependencyNode depFn(obj);
-    return depFn.name().asChar();
-}
-
-PXR_NS::UsdStageRefPtr SceneRenderSettings_getUsdStage()
-{
-    return MayaUsd::UsdSceneSettingsManager::getStage(kRenderSettingsNodeName);
-}
-
-PXR_NS::UsdPrim getDefaultRenderSettingsPrim()
-{
-    auto stage = MayaUsd::UsdSceneSettingsManager::getStage(kRenderSettingsNodeName);
-    if (!stage) {
-        return {};
-    }
-    std::string path;
-    stage->GetMetadata(kRenderSettingsPrimPathToken, &path);
-    if (path.empty()) {
-        return {};
-    }
-    return stage->GetPrimAtPath(PXR_NS::SdfPath(path));
-}
-
-} // namespace
 
 using namespace PXR_BOOST_PYTHON_NAMESPACE;
 
@@ -73,10 +25,16 @@ void wrapSceneRenderSettings()
 {
     class_<MayaUsd::UsdSettingsNode, PXR_BOOST_PYTHON_NAMESPACE::noncopyable>(
         "UsdDefaultRenderSettings", no_init)
-        .def("find", &SceneRenderSettings_find)
+        .def("find", &MayaUsd::SceneRenderSettings::find)
         .staticmethod("find")
-        .def("getUsdStage", &SceneRenderSettings_getUsdStage)
+        .def("getUsdStage", &MayaUsd::SceneRenderSettings::getUsdStage)
         .staticmethod("getUsdStage")
-        .def("getDefaultRenderSettingsPrim", &getDefaultRenderSettingsPrim)
-        .staticmethod("getDefaultRenderSettingsPrim");
+        .def(
+            "getDefaultRenderSettingsPrim",
+            &MayaUsd::SceneRenderSettings::getDefaultRenderSettingsPrim)
+        .staticmethod("getDefaultRenderSettingsPrim")
+        .def("getActiveRenderSettingsPath", &MayaUsd::SceneRenderSettings::getActiveSettingPath)
+        .staticmethod("getActiveRenderSettingsPath")
+        .def("setActiveRenderSettingsPath", &MayaUsd::SceneRenderSettings::setActiveSettingPath)
+        .staticmethod("setActiveRenderSettingsPath");
 }

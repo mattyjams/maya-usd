@@ -92,11 +92,7 @@ UsdStageRefPtr UsdSettingsNode::getUsdStage() const
 
 std::string UsdSettingsNode::nodeName() const
 {
-    // The node is locked at creation, so its DG name is stable and serves as
-    // the manager's lookup key. The const_cast is required because
-    // MPxNode::thisMObject() is non-const in the Maya API; the call has no
-    // observable mutation.
-    MFnDependencyNode depFn(const_cast<UsdSettingsNode*>(this)->thisMObject());
+    MFnDependencyNode depFn(thisMObject());
     return depFn.name().asChar();
 }
 
@@ -144,16 +140,6 @@ void UsdSettingsNode::serializeToAttributes()
         return;
     }
 
-    // The node is locked at creation to keep the manager's name-based lookup
-    // key stable. Temporarily unlock to write the serialized-layer plugs, then
-    // restore the prior state. The intermediate calls (USD ExportToString and
-    // MPlug::setString) do not throw, so a manual bracket is safe here.
-    MFnDependencyNode depFn(thisMObject());
-    const bool        wasLocked = depFn.isLocked();
-    if (wasLocked) {
-        depFn.setLocked(false);
-    }
-
     // Export each layer and only overwrite the matching plug on success.
     // ExportToString returns false on USD's side when serialization fails;
     // overwriting the plug with the partially-populated string would silently
@@ -193,10 +179,6 @@ void UsdSettingsNode::serializeToAttributes()
             "UsdSettingsNode::serializeToAttributes: ExportToString on the session layer failed "
             "for '%s'; keeping previous serialized value.",
             nameForLog.c_str());
-    }
-
-    if (wasLocked) {
-        depFn.setLocked(true);
     }
 }
 

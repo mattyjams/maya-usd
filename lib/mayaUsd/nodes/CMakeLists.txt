@@ -44,6 +44,7 @@ if(MAYA_HAS_USD_SETTINGS_NODES)
     list(APPEND HEADERS
         usdSettingsNode.h
         usdSceneSettingsManager.h
+        sceneRenderSettings.h
     )
 endif()
 

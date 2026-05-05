@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 
-// Registers the "UsdDefaultRenderSettings" node with UsdSceneSettingsManager.
-// This is the only file that needs to change when the render-settings USD
-// schema layout evolves; everything else (node type, callbacks, serialization)
-// is handled generically by the manager and UsdSettingsNode.
+// Registration site and public C++ surface for the UsdDefaultRenderSettings
+// settings node. Node type, callbacks and serialization are handled
+// generically by UsdSettingsNode and UsdSceneSettingsManager.
 
+#include <mayaUsd/nodes/sceneRenderSettings.h>
 #include <mayaUsd/nodes/usdSceneSettingsManager.h>
 
 #include <pxr/base/tf/token.h>
@@ -26,39 +26,111 @@
 #include <pxr/usd/usdGeom/scope.h>
 #include <pxr/usd/usdRender/settings.h>
 
+#include <maya/MFnDependencyNode.h>
+#include <maya/MObject.h>
+
+#include <string>
+
 PXR_NAMESPACE_USING_DIRECTIVE
 
 namespace {
 
-// Use a static initializer so the node is registered before plugin initialization
-// calls onPluginInitialize(). If the plugin is already running (sub-plugin load),
-// registerSettingNode() creates the node immediately.
+// Locked DG node name and UsdSceneSettingsManager lookup key.
+const std::string kRenderSettingsNodeName("UsdDefaultRenderSettings");
+
+// Stage metadata key for the SdfPath of the default render-settings prim.
+const TfToken kRenderSettingsPrimPathToken("renderSettingsPrimPath");
+
+// Stage metadata key for the UFE path of the currently active settings prim.
+const TfToken kActiveSettingsPathToken("activeSettingsPath");
+
+// Static initializer ensures registration happens before
+// UsdSceneSettingsManager::onPluginInitialize(). When the plugin is already
+// running (sub-plugin load), registerSettingNode() creates the node directly.
 // NOLINTNEXTLINE(cert-err58-cpp) -- intentional static initializer pattern
 const bool kRenderSettingsRegistered = []() {
     MayaUsd::UsdSceneSettingsManager::registerSettingNode(
-        "UsdDefaultRenderSettings", [](PXR_NS::UsdStageRefPtr stage) {
+        kRenderSettingsNodeName, [](PXR_NS::UsdStageRefPtr stage) {
             if (!stage) {
                 return;
             }
 
-            // Create a /Render scope to hold all render settings,
-            // per UsdRender conventions (https://openusd.org/dev/api/usd_render_page_front.html).
+            // /Render scope per UsdRender conventions:
+            // https://openusd.org/dev/api/usd_render_page_front.html
             const SdfPath renderScopePath("/Render");
             const SdfPath renderSettingsPath("/Render/SceneRenderSettings");
 
             UsdGeomScope::Define(stage, renderScopePath);
 
-            // Define the RenderSettings prim; leave attributes un-authored so they
-            // fall back to the UsdRenderSettings schema defaults.
+            // Leave attributes un-authored so they fall back to schema defaults.
             UsdRenderSettings renderSettings = UsdRenderSettings::Define(stage, renderSettingsPath);
             if (!renderSettings) {
                 return;
             }
 
-            // Set stage metadata so consumers can discover the primary prim.
-            stage->SetMetadata(TfToken("renderSettingsPrimPath"), renderSettingsPath.GetString());
+            stage->SetMetadata(kRenderSettingsPrimPathToken, renderSettingsPath.GetString());
+
+            // Comma is the segment separator used by Ufe::PathString.
+            const std::string defaultActivePath
+                = kRenderSettingsNodeName + "," + renderSettingsPath.GetString();
+            stage->SetMetadata(kActiveSettingsPathToken, defaultActivePath);
         });
     return true;
 }();
 
 } // namespace
+
+namespace MAYAUSD_NS_DEF {
+namespace SceneRenderSettings {
+
+std::string find()
+{
+    MObject obj = MayaUsd::UsdSceneSettingsManager::find(kRenderSettingsNodeName);
+    if (obj.isNull()) {
+        return {};
+    }
+    MFnDependencyNode depFn(obj);
+    return depFn.name().asChar();
+}
+
+PXR_NS::UsdStageRefPtr getUsdStage()
+{
+    return MayaUsd::UsdSceneSettingsManager::getStage(kRenderSettingsNodeName);
+}
+
+PXR_NS::UsdPrim getDefaultRenderSettingsPrim()
+{
+    auto stage = MayaUsd::UsdSceneSettingsManager::getStage(kRenderSettingsNodeName);
+    if (!stage) {
+        return {};
+    }
+    std::string path;
+    stage->GetMetadata(kRenderSettingsPrimPathToken, &path);
+    if (path.empty()) {
+        return {};
+    }
+    return stage->GetPrimAtPath(PXR_NS::SdfPath(path));
+}
+
+std::string getActiveSettingPath()
+{
+    auto stage = MayaUsd::UsdSceneSettingsManager::getStage(kRenderSettingsNodeName);
+    if (!stage) {
+        return {};
+    }
+    std::string path;
+    stage->GetMetadata(kActiveSettingsPathToken, &path);
+    return path;
+}
+
+bool setActiveSettingPath(const std::string& ufePath)
+{
+    auto stage = MayaUsd::UsdSceneSettingsManager::getStage(kRenderSettingsNodeName);
+    if (!stage) {
+        return false;
+    }
+    return stage->SetMetadata(kActiveSettingsPathToken, ufePath);
+}
+
+} // namespace SceneRenderSettings
+} // namespace MAYAUSD_NS_DEF
