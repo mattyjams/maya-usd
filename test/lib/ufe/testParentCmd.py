@@ -1064,12 +1064,12 @@ class ParentCmdTestCase(unittest.TestCase):
                 '|simpleSceneUSD_TRS_mayaUsdProxy1|simpleSceneUSD_TRS_mayaUsdProxyShape1'))
             stage1ParentHierarchy = ufe.Hierarchy.hierarchy(stage1ParentItem)
             stage2ParentHierarchy = ufe.Hierarchy.hierarchy(stage2ParentItem)
-            stage1ProxyShapeHierarchy = ufe.Hierarchy.hierarchy(stage1ProxyShapeItem)
-            stage2ProxyShapeHierarchy = ufe.Hierarchy.hierarchy(stage2ProxyShapeItem)
+            stage1GatewayHierarchy = ufe.Hierarchy.hierarchy(stage1ProxyShapeItem)
+            stage2GatewayHierarchy = ufe.Hierarchy.hierarchy(stage2ProxyShapeItem)
 
             def checkUnparent(done):
-                stage1ProxyShapeChildren = stage1ProxyShapeHierarchy.children()
-                stage2ProxyShapeChildren = stage2ProxyShapeHierarchy.children()
+                stage1ProxyShapeChildren = stage1GatewayHierarchy.children()
+                stage2ProxyShapeChildren = stage2GatewayHierarchy.children()
                 stage1ParentChildren = stage1ParentHierarchy.children()
                 stage2ParentChildren = stage2ParentHierarchy.children()
                 self.assertEqual(
