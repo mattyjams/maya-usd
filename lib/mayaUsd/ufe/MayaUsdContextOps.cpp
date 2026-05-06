@@ -768,12 +768,16 @@ Ufe::UndoableCommand::Ptr MayaUsdContextOps::doOpCmd(const ItemPath& itemPath)
     }
 #if defined(WANT_ADSK_USD_ASSET_RESOLVER_BUILD)
     if (itemPath[0] == kAssetResolverDialogItem) {
-        // Open the Asset Resolver dialog (paths tab) directly. Returning
-        // nullptr so the action is non-undoable, matching the Layer Editor.
-        MGlobal::executeCommand(
-            MString("assetResolverDialog -tab \"paths\""),
-            /* display = */ true,
-            /* undoable = */ false);
+        // Passing the selected stage to the asset resolver dialog
+        auto ufePath = ufe::stagePath(prim().GetStage());
+        auto noWorld = ufePath.popHead().string();
+        auto dagPath = UsdMayaUtil::nameToDagPath(noWorld);
+        auto shapePath = dagPath.fullPathName();
+        // Open the Asset Resolver dialog (paths tab).
+        MString script;
+        script.format(
+            "assetResolverDialog -tab \"paths\" -proxyShape \"^1s\"", shapePath);
+        MGlobal::executeCommand(script, /* display = */ true, /* undoable = */ false);
         return nullptr;
     }
 #endif
