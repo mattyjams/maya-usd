@@ -17,7 +17,6 @@
 
 #include <usdUfe/ufe/UsdUndoVisibleCommand.h>
 #include <usdUfe/ufe/Utils.h>
-#include <usdUfe/ufe/trf/Utils.h>
 #include <usdUfe/utils/editRouter.h>
 #include <usdUfe/utils/editRouterContext.h>
 
@@ -116,6 +115,9 @@ void UsdObject3d::setVisibility(bool vis)
 {
     AttributeEditRouterContext ctx(_prim, PXR_NS::UsdGeomTokens->visibility);
 
+    // TODO: this is to make the visibility toggle command in Maya work with edit-forwarding.
+    //       The more long-term fix would be to make Maya use the UsdUndoVisibleCommand via
+    //       the setVisibleCmd function.
     NoUsdUndoBlockGuard guard(true);
 
     vis ? PXR_NS::UsdGeomImageable(_prim).MakeVisible()
