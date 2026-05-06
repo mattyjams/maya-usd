@@ -17,6 +17,7 @@
 
 #include <usdUfe/ufe/UsdUndoVisibleCommand.h>
 #include <usdUfe/ufe/Utils.h>
+#include <usdUfe/ufe/trf/Utils.h>
 #include <usdUfe/utils/editRouter.h>
 #include <usdUfe/utils/editRouterContext.h>
 
@@ -114,6 +115,8 @@ bool UsdObject3d::visibility() const
 void UsdObject3d::setVisibility(bool vis)
 {
     AttributeEditRouterContext ctx(_prim, PXR_NS::UsdGeomTokens->visibility);
+
+    NoUsdUndoBlockGuard guard(true);
 
     vis ? PXR_NS::UsdGeomImageable(_prim).MakeVisible()
         : PXR_NS::UsdGeomImageable(_prim).MakeInvisible();
