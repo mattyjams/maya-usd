@@ -775,8 +775,7 @@ Ufe::UndoableCommand::Ptr MayaUsdContextOps::doOpCmd(const ItemPath& itemPath)
         auto shapePath = dagPath.fullPathName();
         // Open the Asset Resolver dialog (paths tab).
         MString script;
-        script.format(
-            "assetResolverDialog -tab \"paths\" -proxyShape \"^1s\"", shapePath);
+        script.format("assetResolverDialog -tab \"paths\" -proxyShape \"^1s\"", shapePath);
         MGlobal::executeCommand(script, /* display = */ true, /* undoable = */ false);
         return nullptr;
     }
