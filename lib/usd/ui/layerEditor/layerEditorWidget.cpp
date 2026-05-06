@@ -242,7 +242,6 @@ void LayerEditorWidget::setupLayout()
         _treeContainer->setObjectName("layerEditorTreeContainer");
         updateTreeContainerStyle(false);
 
-        // Also mimic the selection highlight of treeview around both the banner and tree.
         connect(
             qApp, &QApplication::focusChanged, this, &LayerEditorWidget::updateTreeContainerBorder);
 
@@ -314,19 +313,11 @@ void LayerEditorWidget::updateTreeContainerBorder(QWidget*, QWidget* now)
 
     const bool focused = now && _treeContainer->isAncestorOf(now);
     updateTreeContainerStyle(focused);
-
-    // When highlighted we want the border to be a single pixel wide, so adjust the
-    // margin to avoid the content moving.
-    auto layout = _treeContainer->layout();
-    if (!layout)
-        return;
-
-    const int margin = focused ? 1 : 0;
-    layout->setContentsMargins(margin, margin, margin, margin);
 }
 
 void LayerEditorWidget::updateTreeContainerStyle(bool focused)
 {
+    // Also mimic the selection highlight of treeview around both the banner and tree.
     static const QString baseStyle
         = "QFrame#layerEditorTreeContainer { border: 2px solid rgb(55, 55, 55); }";
     static const QString focusStyle
@@ -336,6 +327,15 @@ void LayerEditorWidget::updateTreeContainerStyle(bool focused)
         return;
 
     _treeContainer->setStyleSheet(focused ? focusStyle : baseStyle);
+
+    // When highlighted we want the border to be a single pixel wide, so adjust the
+    // margin to avoid the content moving.
+    auto layout = _treeContainer->layout();
+    if (!layout)
+        return;
+
+    const int margin = focused ? 1 : 0;
+    layout->setContentsMargins(margin, margin, margin, margin);
 }
 
 // create the default menus on the parent QMainWindow
