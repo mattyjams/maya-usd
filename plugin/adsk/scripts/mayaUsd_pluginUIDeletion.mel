@@ -9,7 +9,13 @@ global proc mayaUsd_pluginUIDeletion()
     // Tear down the Asset Resolver menu items. Wrapped in a Python try/except
     // so it fails gracefully when the Asset Resolver build is not enabled or
     // its dependencies are unavailable.
-    python("exec('try:\\n    import mayaUsd_AdskAssetResolver\\n    mayaUsd_AdskAssetResolver.cleanup_menus()\\nexcept Exception:\\n    pass\\n')");
+    string $cleanupAssetResolverMenus =
+        "try:\n"
+        + "    import mayaUsd_AdskAssetResolver\n"
+        + "    mayaUsd_AdskAssetResolver.cleanup_menus()\n"
+        + "except Exception:\n"
+        + "    pass\n";
+    python($cleanupAssetResolverMenus);
 
     // Unregister the Preferences tab.
     deleteCustomPrefsTab("mayaUsd_PrefCreateTab");

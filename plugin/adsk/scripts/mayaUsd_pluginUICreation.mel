@@ -75,11 +75,11 @@ global proc mayaUsd_pluginUICreation()
     // Initialize the Asset Resolver menu items. Wrapped in a Python try/except
     // so it fails gracefully when the Asset Resolver build is not enabled or
     // its dependencies are unavailable.
-    python(
-        "'try:",
-        "    import mayaUsd_AdskAssetResolver",
-        "    mayaUsd_AdskAssetResolver.initialize_menus()",
-        "except Exception:",
-        "    pass"
-    )
+    string $initAssetResolverMenus =
+        "try:\n"
+        + "    import mayaUsd_AdskAssetResolver\n"
+        + "    mayaUsd_AdskAssetResolver.initialize_menus()\n"
+        + "except Exception:\n"
+        + "    pass\n";
+    python($initAssetResolverMenus);
 }

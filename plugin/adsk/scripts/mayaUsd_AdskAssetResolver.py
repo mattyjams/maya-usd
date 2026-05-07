@@ -1,5 +1,4 @@
 import maya.cmds as cmds
-import maya.mel as mel
 from functools import partial
 import AdskAssetResolver as ar
 from pxr import Ar as pxrAr
@@ -7,7 +6,6 @@ import usdUfe
 
 # Identifiers for various Maya UI elements that need to be known globally
 # to be removed later when shutting down the plugin.
-_usd_tools_menu_item_id = 'usd_tools_menu_item'
 _asset_resolver_dialog_menu_item_id = '_asset_resolver_dialog_menu_item'
 _asset_resolver_dialog_full_menu_item_id = None
 
@@ -15,7 +13,7 @@ def get_maya_version():
     """
     Returns the Maya release year as an integer
     derived from the Maya API version. 
-    Note : cmds.about(version=True) would be more direct, but it doesnt
+    Note : cmds.about(version=True) would be more direct, but it doesn't
     return the year in preview releases.
     """
     api_version = cmds.about(apiVersion=True)
@@ -105,6 +103,6 @@ def _add_asset_resolver_menu_item(usd_tools_menu: str):
     cmds.setParent('..', menu=True)
 
 def _open_asset_resolver_path_editor_dialog(*args):
-   # Opens the Asset Resolver dialog's paths tab.
-   # *args absorbs the menu item state Maya passes to menuItem command callbacks.
-   mel.eval("""assetResolverDialog -tab "paths";""")
+    # Opens the Asset Resolver dialog's paths tab.
+    # *args absorbs the menu item state Maya passes to menuItem command callbacks.
+    cmds.assetResolverDialog(tab="paths")
