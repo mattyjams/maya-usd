@@ -104,6 +104,7 @@ void UsdSettingsNode::ensureStage() const
     PXR_NS::SdfLayerRefPtr rootLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Root");
     PXR_NS::SdfLayerRefPtr sessionLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Session");
     if (!rootLayer || !sessionLayer) {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::ensureStage: SdfLayer::CreateAnonymous returned null for '%s'.",
             name.c_str());
@@ -111,6 +112,7 @@ void UsdSettingsNode::ensureStage() const
     }
     _stage = PXR_NS::UsdStage::Open(rootLayer, sessionLayer);
     if (!_stage) {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::ensureStage: UsdStage::Open returned null for '%s'.", name.c_str());
         return;
@@ -150,12 +152,14 @@ void UsdSettingsNode::serializeToAttributes()
         MPlug   rootPlug(thisMObject(), serializedRootLayerAttr);
         MStatus rootStatus = rootPlug.setString(MString(rootStr.c_str()));
         if (rootStatus != MS::kSuccess) {
+            PXR_NAMESPACE_USING_DIRECTIVE
             TF_RUNTIME_ERROR(
                 "UsdSettingsNode::serializeToAttributes: setString on the root layer plug failed "
                 "for '%s'.",
                 nameForLog.c_str());
         }
     } else {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::serializeToAttributes: ExportToString on the root layer failed for "
             "'%s'; keeping previous serialized value.",
@@ -167,12 +171,14 @@ void UsdSettingsNode::serializeToAttributes()
         MPlug   sessionPlug(thisMObject(), serializedSessionLayerAttr);
         MStatus sessionStatus = sessionPlug.setString(MString(sessionStr.c_str()));
         if (sessionStatus != MS::kSuccess) {
+            PXR_NAMESPACE_USING_DIRECTIVE
             TF_RUNTIME_ERROR(
                 "UsdSettingsNode::serializeToAttributes: setString on the session layer plug "
                 "failed for '%s'.",
                 nameForLog.c_str());
         }
     } else {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::serializeToAttributes: ExportToString on the session layer failed "
             "for '%s'; keeping previous serialized value.",
@@ -193,6 +199,7 @@ void UsdSettingsNode::deserializeFromAttributes()
     PXR_NS::SdfLayerRefPtr rootLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Root");
     PXR_NS::SdfLayerRefPtr sessionLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Session");
     if (!rootLayer || !sessionLayer) {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::deserializeFromAttributes: failed to create anonymous layers for "
             "'%s'.",
@@ -201,6 +208,7 @@ void UsdSettingsNode::deserializeFromAttributes()
     }
 
     if (rootStr.length() > 0 && !rootLayer->ImportFromString(std::string(rootStr.asChar()))) {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_WARN(
             "UsdSettingsNode::deserializeFromAttributes: ImportFromString failed on the root layer "
             "of '%s'; falling back to defaults.",
@@ -210,6 +218,7 @@ void UsdSettingsNode::deserializeFromAttributes()
 
     if (sessionStr.length() > 0
         && !sessionLayer->ImportFromString(std::string(sessionStr.asChar()))) {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_WARN(
             "UsdSettingsNode::deserializeFromAttributes: ImportFromString failed on the session "
             "layer of '%s'.",
@@ -219,6 +228,7 @@ void UsdSettingsNode::deserializeFromAttributes()
 
     _stage = PXR_NS::UsdStage::Open(rootLayer, sessionLayer);
     if (!_stage) {
+        PXR_NAMESPACE_USING_DIRECTIVE
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::deserializeFromAttributes: UsdStage::Open returned null for '%s'.",
             name.c_str());
