@@ -756,10 +756,9 @@ Ufe::UndoableCommand::Ptr MayaUsdContextOps::doOpCmd(const ItemPath& itemPath)
     // When building without Qt there is no LayerEditor
     if (itemPath[0] == kUSDLayerEditorItem) {
         // Just open the editor directly and return null so we don't have undo.
-        auto ufePath = ufe::stagePath(prim().GetStage());
-        auto noWorld = ufePath.popHead().string();
-        auto dagPath = UsdMayaUtil::nameToDagPath(noWorld);
-        auto shapePath = dagPath.fullPathName();
+        auto       ufePath = ufe::stagePath(prim().GetStage());
+        const auto dagPath = MayaUsd::ufe::ufeToDagPath(ufePath);
+        auto       shapePath = dagPath.fullPathName();
 
         MString script;
         script.format("mayaUsdLayerEditorWindow -proxyShape ^1s mayaUsdLayerEditor", shapePath);
@@ -769,10 +768,9 @@ Ufe::UndoableCommand::Ptr MayaUsdContextOps::doOpCmd(const ItemPath& itemPath)
 #if defined(WANT_ADSK_USD_ASSET_RESOLVER_BUILD)
     if (itemPath[0] == kAssetResolverDialogItem) {
         // Passing the selected stage to the asset resolver dialog
-        auto ufePath = ufe::stagePath(prim().GetStage());
-        auto noWorld = ufePath.popHead().string();
-        auto dagPath = UsdMayaUtil::nameToDagPath(noWorld);
-        auto shapePath = dagPath.fullPathName();
+        auto       ufePath = ufe::stagePath(prim().GetStage());
+        const auto dagPath = MayaUsd::ufe::ufeToDagPath(ufePath);
+        auto       shapePath = dagPath.fullPathName();
         // Open the Asset Resolver dialog (paths tab).
         MString script;
         script.format("assetResolverDialog -tab \"paths\" -proxyShape \"^1s\"", shapePath);
