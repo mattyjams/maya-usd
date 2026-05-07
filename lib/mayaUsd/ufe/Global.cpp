@@ -17,9 +17,6 @@
 
 #include <mayaUsd/fileio/jobs/jobArgs.h>
 #include <mayaUsd/nodes/proxyShapeStageExtraData.h>
-#ifdef MAYA_HAS_USD_SETTINGS_NODES
-#include <mayaUsd/nodes/usdSceneSettingsManager.h>
-#endif
 #include <mayaUsd/render/vp2RenderDelegate/proxyRenderDelegate.h>
 #include <mayaUsd/ufe/GatewayHierarchyHandler.h>
 #include <mayaUsd/ufe/MayaStagesSubject.h>
@@ -39,6 +36,10 @@
 #include <usdUfe/ufe/trf/UsdTransform3dCommonAPI.h>
 #include <usdUfe/ufe/trf/UsdTransform3dMatrixOp.h>
 #include <usdUfe/ufe/trf/UsdTransform3dPointInstance.h>
+
+#ifdef MAYA_HAS_USD_SETTINGS_NODES
+#include <mayaUsd/nodes/usdSceneSettingsManager.h>
+#endif
 
 #ifdef UFE_V3_FEATURES_AVAILABLE
 #define HAVE_PATH_MAPPING

@@ -137,10 +137,10 @@ private:
     static std::map<std::string, MObjectHandle>& instances();
     static StageObserverHook&                    stageObserverHook();
 
-    static MCallbackId _afterNewCbId;
-    static MCallbackId _afterOpenCbId;
-    static MCallbackId _beforeSaveCbId;
-    static bool        _isPluginInitialized;
+    static MCallbackId afterNewCbId;
+    static MCallbackId afterOpenCbId;
+    static MCallbackId beforeSaveCbId;
+    static bool        isPluginInitialized;
 };
 
 } // namespace MAYAUSD_NS_DEF

@@ -40,8 +40,8 @@ namespace MAYAUSD_NS_DEF {
  *  populator that seeds the node's USD stage content. UsdSceneSettingsManager guarantees one
  *  managed instance per registered node name throughout the Maya session.
  *
- *  As a pure DG node it has no DAG transform and does not appear in DAG traversals or the
- *  Outliner. Its USD stage is serialized into the Maya scene file via two hidden string
+ *  As a pure DG node it has no DAG transform and does not appear in DAG traversals.
+ *  Its USD stage is serialized into the Maya scene file via two hidden string
  *  attributes so no external USD files are needed.
  *
  *  The node implements ProxyStageProvider so MayaUsdAPI::ProxyStage clients can read the

@@ -41,10 +41,6 @@
 #include <mayaUsd/nodes/proxyShapeBase.h>
 #include <mayaUsd/nodes/proxyShapePlugin.h>
 #include <mayaUsd/nodes/stageData.h>
-#ifdef MAYA_HAS_USD_SETTINGS_NODES
-#include <mayaUsd/nodes/usdSceneSettingsManager.h>
-#include <mayaUsd/nodes/usdSettingsNode.h>
-#endif
 #include <mayaUsd/render/pxrUsdMayaGL/proxyShapeUI.h>
 #include <mayaUsd/render/vp2RenderDelegate/proxyRenderDelegate.h>
 #include <mayaUsd/ufe/Global.h>
@@ -108,6 +104,11 @@
 #define TOSTRING(x)  STRINGIFY(x)
 #else
 #error "MAYAUSD_VERSION is not defined"
+#endif
+
+#ifdef MAYA_HAS_USD_SETTINGS_NODES
+#include <mayaUsd/nodes/usdSceneSettingsManager.h>
+#include <mayaUsd/nodes/usdSettingsNode.h>
 #endif
 
 PXR_NAMESPACE_USING_DIRECTIVE

@@ -24,7 +24,6 @@
 #include <maya/MItDependencyNodes.h>
 #include <maya/MPlug.h>
 #include <maya/MSceneMessage.h>
-PXR_NAMESPACE_USING_DIRECTIVE
 
 namespace MAYAUSD_NS_DEF {
 
@@ -32,10 +31,10 @@ namespace MAYAUSD_NS_DEF {
 // Static member definitions
 // ---------------------------------------------------------------------------
 
-MCallbackId UsdSceneSettingsManager::_afterNewCbId = 0;
-MCallbackId UsdSceneSettingsManager::_afterOpenCbId = 0;
-MCallbackId UsdSceneSettingsManager::_beforeSaveCbId = 0;
-bool        UsdSceneSettingsManager::_isPluginInitialized = false;
+MCallbackId UsdSceneSettingsManager::afterNewCbId = 0;
+MCallbackId UsdSceneSettingsManager::afterOpenCbId = 0;
+MCallbackId UsdSceneSettingsManager::beforeSaveCbId = 0;
+bool        UsdSceneSettingsManager::isPluginInitialized = false;
 
 // ---------------------------------------------------------------------------
 // Storage accessors
@@ -73,7 +72,7 @@ void UsdSceneSettingsManager::registerSettingNode(const std::string& nodeName, P
 
     // If the plugin is already running, create the node immediately so callers
     // registered after plugin init (e.g. sub-plugins) get a live node at once.
-    if (_isPluginInitialized) {
+    if (isPluginInitialized) {
         findOrCreate(nodeName);
     }
 }
@@ -120,7 +119,7 @@ MObject UsdSceneSettingsManager::findOrCreate(const std::string& nodeName)
     // Refuse during teardown so a callback fired by deleteNode in
     // onPluginFinalize() can't resurrect a managed node moments before
     // deregisterNode(typeId) runs.
-    if (!_isPluginInitialized) {
+    if (!isPluginInitialized) {
         return MObject::kNullObj;
     }
 
@@ -229,19 +228,19 @@ void UsdSceneSettingsManager::onPluginInitialize()
 {
     MStatus status;
 
-    _afterNewCbId
+    afterNewCbId
         = MSceneMessage::addCallback(MSceneMessage::kAfterNew, onAfterNew, nullptr, &status);
     CHECK_MSTATUS(status);
 
-    _afterOpenCbId = MSceneMessage::addCallback(
+    afterOpenCbId = MSceneMessage::addCallback(
         MSceneMessage::kAfterSceneReadAndRecordEdits, onAfterOpen, nullptr, &status);
     CHECK_MSTATUS(status);
 
-    _beforeSaveCbId
+    beforeSaveCbId
         = MSceneMessage::addCallback(MSceneMessage::kBeforeSave, onBeforeSave, nullptr, &status);
     CHECK_MSTATUS(status);
 
-    _isPluginInitialized = true;
+    isPluginInitialized = true;
 
     // kAfterNew does not fire for the default scene present at Maya startup;
     // create nodes for all registered node names now.
@@ -253,26 +252,26 @@ void UsdSceneSettingsManager::onPluginInitialize()
 /* static */
 void UsdSceneSettingsManager::onPluginFinalize()
 {
-    if (_afterNewCbId) {
-        MSceneMessage::removeCallback(_afterNewCbId);
-        _afterNewCbId = 0;
+    if (afterNewCbId) {
+        MSceneMessage::removeCallback(afterNewCbId);
+        afterNewCbId = 0;
     }
-    if (_afterOpenCbId) {
-        MSceneMessage::removeCallback(_afterOpenCbId);
-        _afterOpenCbId = 0;
+    if (afterOpenCbId) {
+        MSceneMessage::removeCallback(afterOpenCbId);
+        afterOpenCbId = 0;
     }
-    if (_beforeSaveCbId) {
-        MSceneMessage::removeCallback(_beforeSaveCbId);
-        _beforeSaveCbId = 0;
+    if (beforeSaveCbId) {
+        MSceneMessage::removeCallback(beforeSaveCbId);
+        beforeSaveCbId = 0;
     }
 
-    _isPluginInitialized = false;
+    isPluginInitialized = false;
 
     // Snapshot the live handles, then clear the map BEFORE deletion so any
     // callback fired during MDGModifier::doIt() (which can call back through
     // find* / findOrCreate) sees a clean state and does not resurrect a
     // managed node we are about to deregister. findOrCreate() also refuses
-    // to create new nodes once _isPluginInitialized is false (see above).
+    // to create new nodes once isPluginInitialized is false (see above).
     std::vector<MObject> toDelete;
     toDelete.reserve(instances().size());
     for (auto& [nodeName, handle] : instances()) {

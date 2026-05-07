@@ -31,18 +31,16 @@
 
 #include <string>
 
-PXR_NAMESPACE_USING_DIRECTIVE
-
 namespace {
 
 // Locked DG node name and UsdSceneSettingsManager lookup key.
 const std::string kRenderSettingsNodeName("UsdDefaultRenderSettings");
 
 // Stage metadata key for the SdfPath of the default render-settings prim.
-const TfToken kRenderSettingsPrimPathToken("renderSettingsPrimPath");
+const PXR_NS::TfToken kRenderSettingsPrimPathToken("renderSettingsPrimPath");
 
 // Stage metadata key for the UFE path of the currently active settings prim.
-const TfToken kActiveSettingsPathToken("activeSettingsPath");
+const PXR_NS::TfToken kActiveSettingsPathToken("activeSettingsPath");
 
 // Static initializer ensures registration happens before
 // UsdSceneSettingsManager::onPluginInitialize(). When the plugin is already
@@ -57,13 +55,14 @@ const bool kRenderSettingsRegistered = []() {
 
             // /Render scope per UsdRender conventions:
             // https://openusd.org/dev/api/usd_render_page_front.html
-            const SdfPath renderScopePath("/Render");
-            const SdfPath renderSettingsPath("/Render/SceneRenderSettings");
+            const PXR_NS::SdfPath renderScopePath("/Render");
+            const PXR_NS::SdfPath renderSettingsPath("/Render/SceneRenderSettings");
 
-            UsdGeomScope::Define(stage, renderScopePath);
+            PXR_NS::UsdGeomScope::Define(stage, renderScopePath);
 
             // Leave attributes un-authored so they fall back to schema defaults.
-            UsdRenderSettings renderSettings = UsdRenderSettings::Define(stage, renderSettingsPath);
+            PXR_NS::UsdRenderSettings renderSettings
+                = PXR_NS::UsdRenderSettings::Define(stage, renderSettingsPath);
             if (!renderSettings) {
                 return;
             }

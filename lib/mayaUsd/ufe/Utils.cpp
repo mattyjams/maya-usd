@@ -15,15 +15,16 @@
 //
 #include <mayaUsd/fileio/jobs/jobArgs.h>
 #include <mayaUsd/nodes/proxyShapeBase.h>
-#ifdef MAYA_HAS_USD_SETTINGS_NODES
-#include <mayaUsd/nodes/usdSceneSettingsManager.h>
-#include <mayaUsd/nodes/usdSettingsNode.h>
-#endif
 #include <mayaUsd/ufe/Global.h>
 #include <mayaUsd/ufe/ProxyShapeHandler.h>
 #include <mayaUsd/ufe/UsdStageMap.h>
 #include <mayaUsd/ufe/Utils.h>
 #include <mayaUsd/utils/util.h>
+
+#ifdef MAYA_HAS_USD_SETTINGS_NODES
+#include <mayaUsd/nodes/usdSceneSettingsManager.h>
+#include <mayaUsd/nodes/usdSettingsNode.h>
+#endif
 
 #ifdef UFE_V3_FEATURES_AVAILABLE
 #include <mayaUsd/fileio/primUpdaterManager.h>

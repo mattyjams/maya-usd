@@ -28,8 +28,6 @@
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MPlug.h>
 
-PXR_NAMESPACE_USING_DIRECTIVE
-
 namespace MAYAUSD_NS_DEF {
 
 const MTypeId UsdSettingsNode::typeId(0x580000A6);
@@ -82,9 +80,9 @@ UsdSettingsNode::UsdSettingsNode()
 {
 }
 
-UsdTimeCode UsdSettingsNode::getTime() const { return UsdTimeCode::Default(); }
+PXR_NS::UsdTimeCode UsdSettingsNode::getTime() const { return PXR_NS::UsdTimeCode::Default(); }
 
-UsdStageRefPtr UsdSettingsNode::getUsdStage() const
+PXR_NS::UsdStageRefPtr UsdSettingsNode::getUsdStage() const
 {
     ensureStage();
     return _stage;
@@ -102,16 +100,16 @@ void UsdSettingsNode::ensureStage() const
         return;
     }
 
-    const std::string name = nodeName();
-    SdfLayerRefPtr    rootLayer = SdfLayer::CreateAnonymous(name + "Root");
-    SdfLayerRefPtr    sessionLayer = SdfLayer::CreateAnonymous(name + "Session");
+    const std::string      name = nodeName();
+    PXR_NS::SdfLayerRefPtr rootLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Root");
+    PXR_NS::SdfLayerRefPtr sessionLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Session");
     if (!rootLayer || !sessionLayer) {
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::ensureStage: SdfLayer::CreateAnonymous returned null for '%s'.",
             name.c_str());
         return;
     }
-    _stage = UsdStage::Open(rootLayer, sessionLayer);
+    _stage = PXR_NS::UsdStage::Open(rootLayer, sessionLayer);
     if (!_stage) {
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::ensureStage: UsdStage::Open returned null for '%s'.", name.c_str());
@@ -192,8 +190,8 @@ void UsdSettingsNode::deserializeFromAttributes()
     MString rootStr = rootPlug.asString();
     MString sessionStr = sessionPlug.asString();
 
-    SdfLayerRefPtr rootLayer = SdfLayer::CreateAnonymous(name + "Root");
-    SdfLayerRefPtr sessionLayer = SdfLayer::CreateAnonymous(name + "Session");
+    PXR_NS::SdfLayerRefPtr rootLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Root");
+    PXR_NS::SdfLayerRefPtr sessionLayer = PXR_NS::SdfLayer::CreateAnonymous(name + "Session");
     if (!rootLayer || !sessionLayer) {
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::deserializeFromAttributes: failed to create anonymous layers for "
@@ -219,7 +217,7 @@ void UsdSettingsNode::deserializeFromAttributes()
         sessionStr = MString();
     }
 
-    _stage = UsdStage::Open(rootLayer, sessionLayer);
+    _stage = PXR_NS::UsdStage::Open(rootLayer, sessionLayer);
     if (!_stage) {
         TF_RUNTIME_ERROR(
             "UsdSettingsNode::deserializeFromAttributes: UsdStage::Open returned null for '%s'.",
