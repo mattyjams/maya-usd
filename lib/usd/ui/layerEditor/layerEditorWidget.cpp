@@ -432,7 +432,7 @@ void LayerEditorWidget::updateNewLayerButton()
             if (!selectedRows.empty()) {
                 item = _treeView->layerItemFromIndex(selectedRows[0]);
             }
-            // When nothing is selected, it fallback adding to the root layer.
+            // When nothing is selected, the button adds a new layer to the root layer.
             else {
                 auto treeModel = _treeView->layerTreeModel();
                 item = treeModel->layerItemFromIndex(treeModel->rootLayerIndex());
