@@ -133,19 +133,15 @@ class ReparentInComponentTestCase(_ComponentCreatorTestBase, unittest.TestCase):
         self.assertTrue(child.IsValid())
         self.assertTrue(outsideParent.IsValid())
 
-        # Try to reparent the prim to outside the scope - this should succeed
-        # because the child is within the scope (source validation passes).
-        # But the operation itself might fail or succeed depending on the implementation.
-        # In component stages, we validate the child being moved, not the destination.
-        # So this should actually work - the child can be moved anywhere.
-        cmds.parent(proxyShapePath + ',/root/geo/Child', proxyShapePath + ',/root/OutsideScope')
+        # Reparenting to a destination outside the component scopes must be rejected.
+        with self.assertRaises(Exception):
+            cmds.parent(
+                proxyShapePath + ',/root/geo/Child',
+                proxyShapePath + ',/root/OutsideScope')
 
-        # Verify the child was moved.
-        self.assertFalse(stage.GetPrimAtPath('/root/geo/Child').IsValid())
-        self.assertTrue(stage.GetPrimAtPath('/root/OutsideScope/Child').IsValid())
-
-        # Undo to clean up.
-        cmds.undo()
+        # Verify the prim was not moved.
+        self.assertTrue(stage.GetPrimAtPath('/root/geo/Child').IsValid())
+        self.assertFalse(stage.GetPrimAtPath('/root/OutsideScope/Child').IsValid())
 
     def testReparentRestrictionComponentScopeItself(self):
         '''Test reparent restriction - cannot reparent the component scope prims themselves.'''
