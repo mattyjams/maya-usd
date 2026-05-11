@@ -135,9 +135,10 @@ BUILD_HDMAYA                | builds the legacy Maya-To-Hydra plugin and scene d
 BUILD_RFM_TRANSLATORS       | builds translators for RenderMan for Maya shaders.         | ON
 BUILD_TESTS                 | builds all unit tests.                                     | ON
 BUILD_STRICT_MODE           | enforces all warnings as errors.                           | ON
-BUILD_WITH_PYTHON_3			| build with python 3.										 | OFF
-BUILD_SHARED_LIBS			| build libraries as shared or static.						 | ON
-BUILD_UB2                   | build universal binary 2 (UB2) Intel64+arm64 (apple only)  | OFF
+BUILD_WITH_PYTHON_3         | build with python 3.                                       | OFF
+BUILD_SHARED_LIBS           | build libraries as shared or static.                       | ON
+BUILD_UB2                   | build Universal binary 2 (UB2) Intel64+arm64 (OSX only)    | ON
+BUILD_ARM64                 | build arm64 architecture (OSX only)                        | OFF
 CMAKE_WANT_MATERIALX_BUILD  | enable building with MaterialX (experimental).             | OFF
 
 ##### Stages
