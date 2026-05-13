@@ -152,9 +152,13 @@ MStatus AssetResolverDialogCmd::doIt(const MArgList& args)
             tabName == kSettingsTabName ? Adsk::AssetResolverPathDialog::Tab::GlobalSettings
                                         : Adsk::AssetResolverPathDialog::Tab::Paths);
 
+        g_assetResolverDialog->show();
+#ifdef OSMac_
+        g_assetResolverDialog->setWindowState(
+            (g_assetResolverDialog->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+#endif
         g_assetResolverDialog->raise();
         g_assetResolverDialog->activateWindow();
-        g_assetResolverDialog->show();
         return MS::kSuccess;
     }
 
