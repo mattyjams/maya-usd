@@ -27,6 +27,7 @@ target_sources(${PROJECT_NAME}
         proxyStage.cpp
         proxyShapeNotice.cpp
         render.cpp
+        sceneRenderSettings.cpp
         ufeHandlers.cpp
         undo.cpp
         utils.cpp
@@ -40,6 +41,7 @@ set(HEADERS
     ufeHandlers.h
     proxyShapeNotice.h
     render.h
+    sceneRenderSettings.h
     undo.h
     utils.h
 )
