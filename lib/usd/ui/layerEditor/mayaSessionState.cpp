@@ -151,7 +151,7 @@ std::vector<SessionState::StageEntry> MayaSessionState::allStages() const
     std::vector<StageEntry> stages;
 
     // Iterate through all shape DAG nodes to find proxy shape nodes
-    MItDag dagIterator(MItDag::kBreadthFirst, MFn::kPluginShape);
+    MItDag dagIterator(MItDag::kDepthFirst, MFn::kPluginShape);
     for (; !dagIterator.isDone(); dagIterator.next()) {
         MObject    mobj = dagIterator.currentItem();
         MFnDagNode fnDagNode(mobj);
