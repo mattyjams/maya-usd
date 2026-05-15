@@ -150,8 +150,8 @@ std::vector<SessionState::StageEntry> MayaSessionState::allStages() const
 {
     std::vector<StageEntry> stages;
 
-    // Iterate through all DAG nodes to find proxy shape nodes
-    MItDag dagIterator(MItDag::kBreadthFirst, MFn::kInvalid);
+    // Iterate through all shape DAG nodes to find proxy shape nodes
+    MItDag dagIterator(MItDag::kBreadthFirst, MFn::kPluginShape);
     for (; !dagIterator.isDone(); dagIterator.next()) {
         MObject    mobj = dagIterator.currentItem();
         MFnDagNode fnDagNode(mobj);
@@ -164,8 +164,14 @@ std::vector<SessionState::StageEntry> MayaSessionState::allStages() const
         // Check if this node is a proxy shape by type name
         MDagPath dagPath;
         dagIterator.getPath(dagPath);
-        MString shapePath = dagPath.fullPathName();
 
+        // Avoid instances of the same shape by only looking at the first instance (instance number
+        // 0)
+        if (dagPath.instanceNumber() != 0) {
+            continue;
+        }
+
+        MString    shapePath = dagPath.fullPathName();
         StageEntry entry;
         if (getStageEntry(&entry, shapePath)) {
             stages.push_back(entry);
