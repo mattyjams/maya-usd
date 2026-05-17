@@ -34,6 +34,7 @@ class QPushButton;
 
 namespace UsdLayerEditor {
 class DirtyLayersCountBadge;
+class EditForwardDialog;
 class LayerTreeView;
 class SessionState;
 class LayerContentsWidget;
@@ -108,6 +109,9 @@ private:
     QBasicTimer                   _layerContentsTimer;
 
     QLabel*               _editForwardBanner { nullptr };
+#ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
+    QPointer<EditForwardDialog> _editForwardDialog;
+#endif
     PXR_NS::TfNotice::Key _layerChangedKey;
 
     bool _updateButtonsOnIdle = false; // true if request to update on idle is pending
