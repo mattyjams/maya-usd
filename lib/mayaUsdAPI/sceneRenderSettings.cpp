@@ -23,5 +23,10 @@ namespace SceneRenderSettings {
 
 PXR_NS::UsdStageRefPtr getUsdStage() { return MayaUsd::SceneRenderSettings::getUsdStage(); }
 
+const PXR_NS::TfToken& externalCameraAttrName()
+{
+    return MayaUsd::SceneRenderSettings::externalCameraAttrName();
+}
+
 } // namespace SceneRenderSettings
 } // namespace MAYAUSDAPI_NS_DEF

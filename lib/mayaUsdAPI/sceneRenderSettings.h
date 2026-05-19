@@ -18,6 +18,7 @@
 
 #include <mayaUsdAPI/api.h>
 
+#include <pxr/base/tf/token.h>
 #include <pxr/pxr.h>
 #include <pxr/usd/usd/stage.h>
 
@@ -29,6 +30,10 @@ namespace SceneRenderSettings {
 
 //! \return the USD stage backing the render-settings singleton.
 MAYAUSD_API_PUBLIC PXR_NS::UsdStageRefPtr getUsdStage();
+
+//! \return the name of the custom attribute holding the UFE path of a
+//!         camera that lives outside the render-settings stage.
+MAYAUSD_API_PUBLIC const PXR_NS::TfToken& externalCameraAttrName();
 
 } // namespace SceneRenderSettings
 
