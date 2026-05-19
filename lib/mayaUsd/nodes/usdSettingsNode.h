@@ -78,10 +78,10 @@ public:
     //! Unlike getUsdStage(), this does not trigger lazy creation.
     bool hasStage() const { return _stage != nullptr; }
 
-    //! UFE path of the currently active settings prim.
+    //! UFE path string of the currently active settings prim.
     std::string activeSettingsPath() const;
 
-    //! Author the UFE path of the currently active settings prim. Returns
+    //! Author the UFE path string of the currently active settings prim. Returns
     //! false on plug-write failure.
     bool setActiveSettingsPath(const std::string& ufePath);
 

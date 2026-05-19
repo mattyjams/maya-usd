@@ -31,7 +31,7 @@ namespace SceneRenderSettings {
 //! \return the USD stage backing the render-settings singleton.
 MAYAUSD_API_PUBLIC PXR_NS::UsdStageRefPtr getUsdStage();
 
-//! \return the name of the custom attribute holding the UFE path of a
+//! \return the name of the custom attribute holding the UFE path string of a
 //!         camera that lives outside the render-settings stage.
 MAYAUSD_API_PUBLIC const PXR_NS::TfToken& externalCameraAttrName();
 
