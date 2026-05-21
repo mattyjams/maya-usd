@@ -15,7 +15,6 @@ set(GNU_CLANG_FLAGS
     -Wno-unused-local-typedefs
 )
 
-
 if(IS_GNU)
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
         # This is to work around a warning that comes from OpenUSD VtValue header

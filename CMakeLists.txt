@@ -130,12 +130,12 @@ if (BUILD_MAYAUSD_LIBRARY)
     find_package(Maya 2022 REQUIRED)
 endif()
 
-if(APPLE)
+if(Maya_FOUND AND APPLE)
     if(BUILD_ARM64 AND NOT (MAYA_MACOSX_BUILT_WITH_ARM64 OR MAYA_MACOSX_BUILT_WITH_UB2))
         # When forcing arm64 only build, Maya can be either arm64 or UB2.
-        message(FATAL_ERROR "Building MayaUsd with Arm64, but Maya was NOT built with arm64 (or UB2)")
+        message(FATAL_ERROR "Building MayaUsd with arm64, but Maya was NOT built with arm64 (or UB2)")
     elseif(BUILD_UB2 AND NOT MAYA_MACOSX_BUILT_WITH_UB2)
-        message(FATAL_ERROR "Building MayaUSD with UB2, but Maya was NOT built with UB2")
+        message(FATAL_ERROR "Building MayaUsd with UB2, but Maya was NOT built with UB2")
     endif()
 endif()
 

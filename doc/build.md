@@ -137,8 +137,8 @@ BUILD_TESTS                 | builds all unit tests.                            
 BUILD_STRICT_MODE           | enforces all warnings as errors.                           | ON
 BUILD_WITH_PYTHON_3         | build with python 3.                                       | OFF
 BUILD_SHARED_LIBS           | build libraries as shared or static.                       | ON
-BUILD_UB2                   | build Universal binary 2 (UB2) Intel64+arm64 (OSX only)    | ON
-BUILD_ARM64                 | build arm64 architecture (OSX only)                        | OFF
+BUILD_UB2                   | build Universal binary 2 (UB2) Intel64+arm64 (OSX only)<br><b>note</b>: mutually exclusive with BUILD_ARM64 | ON
+BUILD_ARM64                 | build arm64 architecture (OSX only)<br><b>note</b>: mutually exclusive with BUILD_UB2 | OFF
 CMAKE_WANT_MATERIALX_BUILD  | enable building with MaterialX (experimental).             | OFF
 
 ##### Stages
