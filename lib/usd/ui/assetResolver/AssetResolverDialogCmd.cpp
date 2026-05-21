@@ -44,6 +44,7 @@
 
 #include <AssetResolverExtensions/PathDialog/PathDialog.h>
 #include <QtCore/QPointer>
+#include <QtCore/QVariant>
 #include <QtGui/QCursor>
 #include <QtWidgets/QApplication>
 
@@ -105,7 +106,7 @@ MStatus AssetResolverDialogCmd::doIt(const MArgList& args)
 
         if (!g_assetResolverDialog) {
             QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
+ 
             g_assetResolverDialog = new Adsk::AssetResolverPathDialog(MQtUtil::mainWindow());
             // Intentionally do NOT set Qt::WA_DeleteOnClose. That attribute
             // schedules deletion via deleteLater(), which races with:
@@ -120,6 +121,14 @@ MStatus AssetResolverDialogCmd::doIt(const MArgList& args)
             // Instead we keep the dialog alive across closes (Qt's default
             // closeEvent just hides it) and destroy it explicitly in
             // finalize().
+
+            // Tell Maya to treat this as a Maya-managed window. This is
+            // the same mechanism Maya uses internally to keep its own
+            // dialogs from going behind the main window. Per Maya dev
+            // guidance these two calls should be applied alone, without
+            // combining with any other Qt window flags.
+            g_assetResolverDialog->setWindowFlags(Qt::Window);
+            g_assetResolverDialog->setProperty("saveWindowPref", QVariant::fromValue(true));
 
             g_assetResolverDialog->setGetStagesFunctor([]() {
                 auto allStages = ufe::UsdStageMap::getInstance().allStages();
@@ -152,13 +161,17 @@ MStatus AssetResolverDialogCmd::doIt(const MArgList& args)
             tabName == kSettingsTabName ? Adsk::AssetResolverPathDialog::Tab::GlobalSettings
                                         : Adsk::AssetResolverPathDialog::Tab::Paths);
 
+        // If the dialog was previously minimized, restore it before showing.
+        if (g_assetResolverDialog->isMinimized()) {
+            g_assetResolverDialog->setWindowState(
+                (g_assetResolverDialog->windowState() & ~Qt::WindowMinimized)
+                | Qt::WindowActive);
+        }
+
         g_assetResolverDialog->show();
-#ifdef OSMac_
-        g_assetResolverDialog->setWindowState(
-            (g_assetResolverDialog->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
-#endif
         g_assetResolverDialog->raise();
         g_assetResolverDialog->activateWindow();
+
         return MS::kSuccess;
     }
 
