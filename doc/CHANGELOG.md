@@ -68,7 +68,6 @@
 **Documentation:**
 * Update README with supported versions and feature overview [#4557](https://github.com/Autodesk/maya-usd/pull/4557)
 * Add Component Creator help ID [#4499](https://github.com/Autodesk/maya-usd/pull/4499)
-date version to v0.36.0 [#4470](https://github.com/Autodesk/maya-usd/pull/4470)
 
 ## [v0.35.0] - 2026-02-10
 
