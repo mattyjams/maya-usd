@@ -234,8 +234,8 @@ void UsdSceneSettingsManager::onPluginInitialize()
         = MSceneMessage::addCallback(MSceneMessage::kAfterNew, onAfterNew, nullptr, &status);
     CHECK_MSTATUS(status);
 
-    afterOpenCbId = MSceneMessage::addCallback(
-        MSceneMessage::kAfterOpen, onAfterOpen, nullptr, &status);
+    afterOpenCbId
+        = MSceneMessage::addCallback(MSceneMessage::kAfterOpen, onAfterOpen, nullptr, &status);
     CHECK_MSTATUS(status);
 
     beforeSaveCbId
