@@ -248,7 +248,7 @@ void UsdSceneSettingsManager::onPluginInitialize()
     // create nodes for all registered node names now.
     //
     // Skip when the plugin is loaded mid-file-read (via a "requires" statement
-    // in the .ma file). In that case the file's createNode commands have not run
+    // in the Maya file). In that case the file's createNode commands have not run
     // yet; pre-creating the node here would take the canonical name and cause
     // Maya to rename the file's version, orphaning its serialized attribute data.
     // onAfterOpen will handle creation and deserialization once the file is done.
