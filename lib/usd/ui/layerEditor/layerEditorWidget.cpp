@@ -30,7 +30,7 @@
 #include <mayaUsd/utils/utilComponentCreator.h>
 
 #ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
-#include "../editForward/editForwardDialog.h"
+#include <mayaUsdUI/ui/editForwardDialog.h>
 
 #include <AdskUsdEditForward/StageRuleProvider.h>
 #endif

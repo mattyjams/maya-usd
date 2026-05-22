@@ -330,7 +330,7 @@ void StageSelectorWidget::selectionChanged()
     // that is a USD item. So if multiple stages are selected, the first one wins.
     const Ufe::Selection& ufeSelection = *ufeGlobalSelection;
     for (const auto& item : ufeSelection) {
-        auto* proxyShapePtr = MayaUsd::ufe::getProxyShapeFromItem(item);
+        auto* proxyShapePtr = MayaUsd::ufe::getProxyShapeFromItemOrChildren(item);
         if (!proxyShapePtr)
             continue;
 

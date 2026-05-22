@@ -20,3 +20,10 @@ target_sources(${PROJECT_NAME}
         editForwardDialog.cpp
         editForwardDialog.h
 )
+
+mayaUsd_promoteHeaderList(
+    HEADERS
+        editForwardDialog.h
+    BASEDIR
+        ${PROJECT_NAME}/ui
+)

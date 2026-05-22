@@ -149,7 +149,7 @@ void EditForwardDialog::handleSelectionChanged()
         return;
 
     for (const auto& item : *ufeGlobalSelection) {
-        auto* proxy = MayaUsd::ufe::getProxyShapeFromItem(item);
+        auto* proxy = MayaUsd::ufe::getProxyShapeFromItemOrChildren(item);
         if (!proxy)
             continue;
 

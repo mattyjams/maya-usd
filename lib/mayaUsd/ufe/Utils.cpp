@@ -370,7 +370,7 @@ MayaUsdProxyShapeBase* getProxyShape(const Ufe::Path& path, bool rebuildCacheIfN
     return result;
 }
 
-MayaUsdProxyShapeBase* getProxyShapeFromItem(const Ufe::SceneItem::Ptr& item)
+MayaUsdProxyShapeBase* getProxyShapeFromItemOrChildren(const Ufe::SceneItem::Ptr& item)
 {
     const bool rebuildCacheIfNeeded = false;
     if (auto* proxy = getProxyShape(item->path(), rebuildCacheIfNeeded))
