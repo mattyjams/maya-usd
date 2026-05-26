@@ -73,8 +73,14 @@ void SetVariantSelectionCommand::redo()
     globalSn->replaceWith(UsdUfe::removeDescendants(_savedSn, _path));
 
     {
+        // Note: component only have bvariants on the root, default prim.
+        //       Variant anywhere else are not component variants.
+        const auto stage = _prim.GetStage();
+        const bool isDefaultPrim = (_prim == stage->GetDefaultPrim());
+        const bool isComponentVariant = (isDefaultPrim && UsdUfe::isComponentStage(_path));
+
         UsdUfe::UsdUndoBlock undoBlock(&_undoItem);
-        if (UsdUfe::isComponentStage(_path)) {
+        if (isComponentVariant) {
             UsdUfe::setComponentVariantSelection(
                 _prim.GetStage(), _varSet.GetName(), _newSelection);
         } else {
