@@ -21,9 +21,9 @@
 #include <mayaUsd/ufe/Utils.h>
 
 #include <maya/MDagPath.h>
-#include <maya/MQtUtil.h>
 #include <maya/MFnDagNode.h>
 #include <maya/MMessage.h>
+#include <maya/MQtUtil.h>
 #include <maya/MSceneMessage.h>
 #include <ufe/globalSelection.h>
 #include <ufe/observableSelection.h>
@@ -81,7 +81,8 @@ EditForwardDialog::EditForwardDialog(const QString& title, QWidget* parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(title);
-    resize(static_cast<int>(MQtUtil::dpiScale(1250.0f)), static_cast<int>(MQtUtil::dpiScale(1000.0f)));
+    resize(
+        static_cast<int>(MQtUtil::dpiScale(1250.0f)), static_cast<int>(MQtUtil::dpiScale(1000.0f)));
 
     _forwardWidget = new AdskUsdEditForwardUi::ForwardWidget(this);
     _forwardWidget->setSourceLayerDefault(
