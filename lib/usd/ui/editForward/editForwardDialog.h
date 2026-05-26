@@ -32,7 +32,7 @@ namespace AdskUsdEditForwardUi {
 class ForwardWidget;
 }
 
-namespace UsdLayerEditor {
+namespace UsdEditForwardConfig {
 
 class EditForwardDialog
     : public QDialog
@@ -40,7 +40,7 @@ class EditForwardDialog
 {
     Q_OBJECT
 public:
-    explicit EditForwardDialog(QWidget* parent);
+    explicit EditForwardDialog(const QString& title, QWidget* parent);
     ~EditForwardDialog() override;
 
     void handleSelectionChanged();
@@ -49,8 +49,8 @@ public:
 private:
     void refreshStages();
 
-    void processNodeAdded(MObject& node) override;
-    void processNodeRemoved(MObject& node) override;
+    void        processNodeAdded(MObject& node) override;
+    void        processNodeRemoved(MObject& node) override;
     static void onSceneChangedCB(void* clientData);
 
     AdskUsdEditForwardUi::ForwardWidget* _forwardWidget { nullptr };
@@ -58,6 +58,6 @@ private:
     std::vector<MCallbackId>             _sceneCallbackIds;
 };
 
-} // namespace UsdLayerEditor
+} // namespace UsdEditForwardConfig
 
 #endif // EDITFORWARDDIALOG_H

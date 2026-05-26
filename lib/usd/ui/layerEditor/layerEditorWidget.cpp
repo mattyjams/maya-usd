@@ -407,30 +407,24 @@ void LayerEditorWidget::setupDefaultMenu(QMainWindow* in_parent)
 
         auto configureEditForwardingAction = optionMenu->addAction(
             StringResources::getAsQString(StringResources::kConfigureEditForwarding));
-        QObject::connect(
-            configureEditForwardingAction,
-            &QAction::triggered,
-            this,
-            [this, ss]() {
-                if (_editForwardDialog) {
-                    _editForwardDialog->show();
-                    _editForwardDialog->raise();
-                    _editForwardDialog->activateWindow();
-                    return;
-                }
-                _editForwardDialog = new EditForwardDialog(MQtUtil::mainWindow());
-                // While the layer editor is open, follow its current stage.
-                QObject::connect(
-                    ss,
-                    &SessionState::currentStageChangedSignal,
-                    this,
-                    [this, ss]() {
-                        if (_editForwardDialog) {
-                            _editForwardDialog->setActiveStage(ss->stage());
-                        }
-                    });
+        QObject::connect(configureEditForwardingAction, &QAction::triggered, this, [this, ss]() {
+            if (_editForwardDialog) {
                 _editForwardDialog->show();
+                _editForwardDialog->raise();
+                _editForwardDialog->activateWindow();
+                return;
+            }
+            _editForwardDialog = new UsdEditForwardConfig::EditForwardDialog(
+                StringResources::getAsQString(StringResources::kConfigureEditForwardingTitle),
+                MQtUtil::mainWindow());
+            // While the layer editor is open, follow its current stage.
+            QObject::connect(ss, &SessionState::currentStageChangedSignal, this, [this, ss]() {
+                if (_editForwardDialog) {
+                    _editForwardDialog->setActiveStage(ss->stage());
+                }
             });
+            _editForwardDialog->show();
+        });
 #endif
 
         auto helpMenu = menuBar->addMenu(StringResources::getAsQString(StringResources::kHelp));

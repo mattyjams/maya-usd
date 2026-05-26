@@ -16,14 +16,12 @@
 
 #include "editForwardDialog.h"
 
-#include "../layerEditor/qtUtils.h"
-#include "../layerEditor/stringResources.h"
-
 #include <mayaUsd/nodes/proxyShapeBase.h>
 #include <mayaUsd/ufe/ProxyShapeHandler.h>
 #include <mayaUsd/ufe/Utils.h>
 
 #include <maya/MDagPath.h>
+#include <maya/MQtUtil.h>
 #include <maya/MFnDagNode.h>
 #include <maya/MMessage.h>
 #include <maya/MSceneMessage.h>
@@ -40,7 +38,7 @@
 
 #include <vector>
 
-namespace UsdLayerEditor {
+namespace UsdEditForwardConfig {
 
 namespace {
 
@@ -78,12 +76,12 @@ struct SelectionObserver : Ufe::Observer
 
 } // namespace
 
-EditForwardDialog::EditForwardDialog(QWidget* parent)
+EditForwardDialog::EditForwardDialog(const QString& title, QWidget* parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowTitle(StringResources::getAsQString(StringResources::kConfigureEditForwardingTitle));
-    resize(DPIScale(1250), DPIScale(1000));
+    setWindowTitle(title);
+    resize(static_cast<int>(MQtUtil::dpiScale(1250.0f)), static_cast<int>(MQtUtil::dpiScale(1000.0f)));
 
     _forwardWidget = new AdskUsdEditForwardUi::ForwardWidget(this);
     _forwardWidget->setSourceLayerDefault(
@@ -176,4 +174,4 @@ void EditForwardDialog::setActiveStage(PXR_NS::UsdStageRefPtr const& stage)
     _forwardWidget->setActiveStage(stage);
 }
 
-} // namespace UsdLayerEditor
+} // namespace UsdEditForwardConfig

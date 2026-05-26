@@ -32,9 +32,14 @@ class QMainWindow;
 class QLayout;
 class QPushButton;
 
+#ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
+namespace UsdEditForwardConfig {
+class EditForwardDialog;
+}
+#endif
+
 namespace UsdLayerEditor {
 class DirtyLayersCountBadge;
-class EditForwardDialog;
 class LayerTreeView;
 class SessionState;
 class LayerContentsWidget;
@@ -108,9 +113,9 @@ private:
     QPointer<LayerContentsWidget> _layerContents;
     QBasicTimer                   _layerContentsTimer;
 
-    QLabel*               _editForwardBanner { nullptr };
+    QLabel* _editForwardBanner { nullptr };
 #ifdef WANT_ADSK_USD_EDIT_FORWARD_BUILD
-    QPointer<EditForwardDialog> _editForwardDialog;
+    QPointer<UsdEditForwardConfig::EditForwardDialog> _editForwardDialog;
 #endif
     PXR_NS::TfNotice::Key _layerChangedKey;
 
