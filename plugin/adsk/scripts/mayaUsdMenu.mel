@@ -809,47 +809,35 @@ global proc mayaUsdMenu_duplicateAsUsdDataOptions(string $obj)
     python("import mayaUsdDuplicateAsUsdDataOptions; mayaUsdDuplicateAsUsdDataOptions.showDuplicateAsUsdDataOptions()");
 }
 
-// USD Path Editor (asset resolver) for stage shape / stage transform in the outliner.
-// Does not add other common USD context menu items (duplicate-as-USD, etc.).
-proc mayaUsdMenu_addAssetResolverContextMenuItem(string $proxyShape, string $insertAfter)
+// USD Layer Editor and USD Path Editor at the top of the outliner menu, for the DAG
+// stage transform parent of the proxy shape. The stage shape itself is handled by UFE
+// ContextOps (MayaUsdContextOps). USD prims under the stage are handled by UFE as well.
+proc mayaUsdMenu_addStageGatewayContextMenuItems(string $proxyShape)
 {
-    if (!`exists assetResolverDialog`) {
-        return;
-    }
     if (size($proxyShape) == 0 || !`objExists $proxyShape`) {
         return;
     }
     string $shapePath = `longNameOf $proxyShape`;
-    string $command = "assetResolverDialog -tab \"paths\" -proxyShape \"" + $shapePath + "\"";
-    string $pathEditorLabel = `getMayaUsdString("kContextMenuPathEditor")`;
-    menuItem -enableCommandRepeat false
-        -label $pathEditorLabel
-        -insertAfter $insertAfter
-        -command $command;
-}
+    string $insertAfter = "";
 
-// Layer editor and path editor at the top of the outliner menu (stage shape / DAG stage transform).
-proc mayaUsdMenu_addStageGatewayOutlinerMenus(string $proxyShape)
-{
-    if (size($proxyShape) == 0 || !`objExists $proxyShape`) {
-        return;
-    }
-    string $shapePath = `longNameOf $proxyShape`;
-    string $layerEditorItem = "";
     if (`exists mayaUsdLayerEditorWindow`) {
         string $command = "mayaUsdLayerEditorWindow -proxyShape \"" + $shapePath + "\" mayaUsdLayerEditor";
         string $layerEditorLabel = `getMayaUsdString("kContextMenuLayerEditor")`;
         menuItem -divider true -insertAfter "";
-        $layerEditorItem = `menuItem -enableCommandRepeat false
+        $insertAfter = `menuItem -enableCommandRepeat false
             -label $layerEditorLabel
             -insertAfter ""
             -command $command openUsdLayerEditor`;
     }
-    string $insertAfter = $layerEditorItem;
-    if (size($insertAfter) == 0) {
-        $insertAfter = "";
+
+    if (`exists assetResolverDialog`) {
+        string $command = "assetResolverDialog -tab \"paths\" -proxyShape \"" + $shapePath + "\"";
+        string $pathEditorLabel = `getMayaUsdString("kContextMenuPathEditor")`;
+        menuItem -enableCommandRepeat false
+            -label $pathEditorLabel
+            -insertAfter $insertAfter
+            -command $command;
     }
-    mayaUsdMenu_addAssetResolverContextMenuItem($proxyShape, $insertAfter);
 }
 
 proc notifyUsdContextMenuLoaded(string $mayaUsdMenu, string $nodeName)
@@ -1003,13 +991,14 @@ global proc mayaUsdMenu_OutlinerPopupCallback( string $nodeName )
                     $isProxyNode = 1;
                     // DAG stage transform parent: add USD Layer Editor + USD Path Editor at the top.
                     // The stage shape itself is handled by UFE ContextOps (MayaUsdContextOps).
-                    mayaUsdMenu_addStageGatewayOutlinerMenus($shapeNode);
+                    mayaUsdMenu_addStageGatewayContextMenuItems($shapeNode);
                 }
             }
         }
 
         // Don't add the "Push..." menu items for the proxy node or the shape.
         if (!$isProxyNode && !isMayaUsdProxyShape($nodeName)) {
+            // Outliner context menu - insert USD menu after "Asset"
             string $assetMenuItem = findMenuByName($currentMenu, "Asset");
             mayaUsdMenu_addCommonUsdContextMenuItems($nodeName, $assetMenuItem);
             return;
