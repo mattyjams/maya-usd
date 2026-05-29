@@ -233,7 +233,7 @@ std::vector<std::string> UsdShaderNodeDef::inputNames() const
 #if PXR_VERSION >= 2505
     auto names = _shaderNodeDef->GetShaderInputNames();
 #else
-    auto               names = _shaderNodeDef->GetInputNames();
+    auto names = _shaderNodeDef->GetInputNames();
 #endif
     retVal.reserve(names.size());
     for (auto&& n : names) {
@@ -270,7 +270,7 @@ std::vector<std::string> UsdShaderNodeDef::outputNames() const
 #if PXR_VERSION >= 2505
     auto names = _shaderNodeDef->GetShaderOutputNames();
 #else
-    auto               names = _shaderNodeDef->GetOutputNames();
+    auto names = _shaderNodeDef->GetOutputNames();
 #endif
     retVal.reserve(names.size());
     for (auto&& n : names) {

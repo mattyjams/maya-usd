@@ -51,7 +51,7 @@ bool hasUsdShaderMetaData(const USD_SHADER& shader, const PXR_NS::TfToken& key)
 #else
     const PXR_NS::NdrTokenMap& metadata = shader.GetMetadata();
 #endif
-    auto it = metadata.find(key);
+    auto                       it = metadata.find(key);
     return (it != metadata.cend());
 #endif
 }
@@ -71,7 +71,7 @@ Ufe::Value getUsdShaderMetaData(const USD_SHADER& shader, const PXR_NS::TfToken&
 #else
     const PXR_NS::NdrTokenMap& metadata = shader.GetMetadata();
 #endif
-    auto it = metadata.find(key);
+    auto                       it = metadata.find(key);
     if (it != metadata.cend()) {
         return Ufe::Value(it->second);
     }
@@ -187,7 +187,7 @@ static const MetadataMap _metaMap = {
               { Ufe::Attribute::kColorFloat4, std::string { "0,0,0,0" } },
 #endif
           };
-    // If there is a UIMin value, use it as the soft min.
+          // If there is a UIMin value, use it as the soft min.
           auto value = getUsdShaderMetaData(p, UsdUfe::MetadataTokens->UIMin);
           if (!value.empty()) {
               return value;
@@ -210,7 +210,7 @@ static const MetadataMap _metaMap = {
               { Ufe::Attribute::kColorFloat4, std::string { "1,1,1,1" } },
 #endif
           };
-    // If there is a UIMax value, use it as the soft max.
+          // If there is a UIMax value, use it as the soft max.
           auto value = getUsdShaderMetaData(p, UsdUfe::MetadataTokens->UIMax);
           if (!value.empty()) {
               return value;
